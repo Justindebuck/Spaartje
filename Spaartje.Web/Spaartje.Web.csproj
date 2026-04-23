@@ -14,5 +14,8 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
+<ProjectReference Include="..\Spaartje.BLL\Spaartje.BLL.csproj" />
+    <ProjectReference Include="..\Spaartje.DAL\Spaartje.DAL.csproj" />
+    <ProjectReference Include="..\Spaartje.Domain\Spaartje.Domain.csproj" />
+</ItemGroup>
 </Project>
