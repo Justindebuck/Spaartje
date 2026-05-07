@@ -1,0 +1,112 @@
+@* Pages/Account/Login.cshtml *@
+@page
+@model WEB.Pages.Account.LoginModel
+
+@{
+    ViewData["Title"] = "Sign In / Register";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+
+        <ul class="nav nav-tabs mb-4" id="authTabs">
+            <li class="nav-item">
+                <button class="nav-link @(Model.ActiveTab == "login" ? "active" : "")"
+                        data-tab="login">Sign In</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link @(Model.ActiveTab == "register" ? "active" : "")"
+                        data-tab="register">Create Account</button>
+            </li>
+        </ul>
+
+        @* ── LOGIN FORM ───────────────────────────────────────────────────── *@
+        <div id="loginTab" class="tab-pane @(Model.ActiveTab == "login" ? "" : "d-none")">
+            <form method="post" asp-page-handler="Login">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="mb-3">
+                    <label asp-for="LoginInput.Email" class="form-label"></label>
+                    <input asp-for="LoginInput.Email" class="form-control"
+                           autocomplete="username" placeholder="you@example.com" />
+                    <span asp-validation-for="LoginInput.Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="LoginInput.Password" class="form-label"></label>
+                    <input asp-for="LoginInput.Password" class="form-control"
+                           autocomplete="current-password" />
+                    <span asp-validation-for="LoginInput.Password" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input asp-for="LoginInput.RememberMe" class="form-check-input" />
+                    <label asp-for="LoginInput.RememberMe" class="form-check-label"></label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Sign In</button>
+            </form>
+        </div>
+
+        @* ── REGISTER FORM ────────────────────────────────────────────────── *@
+        <div id="registerTab" class="tab-pane @(Model.ActiveTab == "register" ? "" : "d-none")">
+            <form method="post" asp-page-handler="Register">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row mb-3">
+                    <div class="col">
+                        <label asp-for="RegisterInput.FirstName" class="form-label"></label>
+                        <input asp-for="RegisterInput.FirstName" class="form-control" />
+                        <span asp-validation-for="RegisterInput.FirstName" class="text-danger small"></span>
+                    </div>
+                    <div class="col">
+                        <label asp-for="RegisterInput.LastName" class="form-label"></label>
+                        <input asp-for="RegisterInput.LastName" class="form-control" />
+                        <span asp-validation-for="RegisterInput.LastName" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="RegisterInput.Email" class="form-label"></label>
+                    <input asp-for="RegisterInput.Email" class="form-control"
+                           autocomplete="username" placeholder="you@example.com" />
+                    <span asp-validation-for="RegisterInput.Email" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="RegisterInput.Password" class="form-label"></label>
+                    <input asp-for="RegisterInput.Password" class="form-control"
+                           autocomplete="new-password" />
+                    <span asp-validation-for="RegisterInput.Password" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="RegisterInput.ConfirmPassword" class="form-label"></label>
+                    <input asp-for="RegisterInput.ConfirmPassword" class="form-control"
+                           autocomplete="new-password" />
+                    <span asp-validation-for="RegisterInput.ConfirmPassword" class="text-danger small"></span>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Create Account</button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('[data-tab]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-pane').forEach(p => p.classList.add('d-none'));
+                document.querySelectorAll('[data-tab]').forEach(b => b.classList.remove('active'));
+
+                document.getElementById(btn.dataset.tab + 'Tab').classList.remove('d-none');
+                btn.classList.add('active');
+            });
+        });
+    </script>
+}
