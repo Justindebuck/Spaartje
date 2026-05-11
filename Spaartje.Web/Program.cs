@@ -1,9 +1,38 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Spaartje.Web.Data;
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+
+builder.Services.AddDefaultIdentity<IdentityUser>(options => {
+options.Password.RequireDigit = false;
+options.Password.RequireLowercase = false;  
+options.Password.RequireNonAlphanumeric = false;
+options.Password.RequireUppercase = false;
+options.Password.RequiredLength = 6;
+options.SignIn.RequireConfirmedAccount = false;
+ })
+.AddEntityFrameworkStores<ApplicationDbContext>();
+
+ builder.Services.ConfigureApplicationCookie(options => {
+     options.LoginPath = "/Account/Login";
+     options.LogoutPath = "/Account/Logout";
+     options.AccessDeniedPath = "/Account/Login";
+ });
+
+
 
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -22,5 +51,6 @@ app.UseAuthorization();
 app.MapStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();
+
 
 app.Run();
