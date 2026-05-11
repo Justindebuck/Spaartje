@@ -11,7 +11,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
+// Add Identity services
 builder.Services.AddDefaultIdentity<IdentityUser>(options => {
 options.Password.RequireDigit = false;
 options.Password.RequireLowercase = false;  
@@ -22,10 +22,15 @@ options.SignIn.RequireConfirmedAccount = false;
  })
 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+// Configure cookie settings for authentication
  builder.Services.ConfigureApplicationCookie(options => {
      options.LoginPath = "/Account/Login";
      options.LogoutPath = "/Account/Logout";
      options.AccessDeniedPath = "/Account/Login";
+     // Set cookie expiration to 7 days
+     options.ExpireTimeSpan = TimeSpan.FromDays(7);
+     // Enable sliding expiration to refresh the cookie on each request
+     options.SlidingExpiration = true;
  });
 
 

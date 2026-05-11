@@ -1,0 +1,10 @@
+@page
+@model Spaartje.Web.Pages.LogoutModel
+
+@{
+    ViewData["Title"] = "Logged Out";
+}
+
+<h2>You have been logged out</h2>
+<p>Thank you for using Spaartje.</p>
+<p><a asp-page="/Login">Login again</a></p>

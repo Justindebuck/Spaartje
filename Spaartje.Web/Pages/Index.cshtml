@@ -1,10 +1,19 @@
 ﻿@page
-@model IndexModel
+@model Spaartje.Web.Pages.IndexModel
+
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<h2>Welcome to Spaartje 🪙</h2>
+<p>Your personal financial dashboard.</p>
+
+@if (User.Identity!.IsAuthenticated)
+{
+    <p>You are logged in as <strong>@User.Identity.Name</strong>.</p>
+    <p><a asp-page="/Dashboard">Go to your Dashboard →</a></p>
+}
+else
+{
+    <p>Please <a asp-page="/Login">login</a> or <a asp-page="/Register">create an account</a> to get started.</p>
+}
