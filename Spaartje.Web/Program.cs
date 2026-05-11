@@ -24,9 +24,9 @@ options.SignIn.RequireConfirmedAccount = false;
 
 // Configure cookie settings for authentication
  builder.Services.ConfigureApplicationCookie(options => {
-     options.LoginPath = "/Account/Login";
-     options.LogoutPath = "/Account/Logout";
-     options.AccessDeniedPath = "/Account/Login";
+     options.LoginPath = "/Login";
+     options.LogoutPath = "/Logout";
+     options.AccessDeniedPath = "/Login";
      // Set cookie expiration to 7 days
      options.ExpireTimeSpan = TimeSpan.FromDays(7);
      // Enable sliding expiration to refresh the cookie on each request
