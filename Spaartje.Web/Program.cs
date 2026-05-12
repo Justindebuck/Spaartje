@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Spaartje.Web.Data;
 
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -20,13 +19,18 @@ options.Password.RequireUppercase = false;
 options.Password.RequiredLength = 6;
 options.SignIn.RequireConfirmedAccount = false;
  })
-.AddEntityFrameworkStores<ApplicationDbContext>();
+ .AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<ApplicationDbContext>()
+// Add default token providers for password reset, email confirmation, etc.
+.AddDefaultTokenProviders();
+
 
 // Configure cookie settings for authentication
  builder.Services.ConfigureApplicationCookie(options => {
+    // Set the paths for login, logout, and access denied actions
      options.LoginPath = "/Login";
      options.LogoutPath = "/Logout";
-     options.AccessDeniedPath = "/Login";
+     options.AccessDeniedPath = "/AccessDenied";
      // Set cookie expiration to 7 days
      options.ExpireTimeSpan = TimeSpan.FromDays(7);
      // Enable sliding expiration to refresh the cookie on each request
@@ -37,7 +41,13 @@ options.SignIn.RequireConfirmedAccount = false;
 
 var app = builder.Build();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
 
+  await DbSeeder.SeedAsync(services);
+
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -48,9 +58,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseStaticFiles();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
