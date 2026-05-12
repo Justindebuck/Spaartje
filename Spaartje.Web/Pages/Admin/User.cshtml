@@ -6,6 +6,15 @@
 }
 
 <h2>All Users</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        <strong>Error:</strong> @Model.ErrorMessage
+    </div>
+}
+else
+{
 <p>Total registered users: <strong>@Model.Users.Count</strong></p>
 
 @if (Model.Users.Any())
@@ -44,6 +53,7 @@
 else
 {
     <p>No users found.</p>
+}
 }
 
 <p style="margin-top: 20px;"><a asp-page="/Admin/Index">← Back to Admin Panel</a></p>

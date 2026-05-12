@@ -18,6 +18,8 @@ public class UsersModel : PageModel
 
     public List<UserViewModel> Users { get; set; } = new();
 
+     public string? ErrorMessage { get; set; }
+
     public class UserViewModel
     {
         public string Email { get; set; } = string.Empty;
@@ -28,21 +30,27 @@ public class UsersModel : PageModel
 
     public async Task OnGetAsync()
     {
-       
+       try
+        {
         var allUsers = _userManager.Users.ToList();
 
     
         foreach (var user in allUsers)
-        {
-            var roles = await _userManager.GetRolesAsync(user);
-
-            Users.Add(new UserViewModel
             {
-                Email = user.Email ?? "(no email)",
-                EmailConfirmed = user.EmailConfirmed,
-             
-                Roles = roles.ToList()
-            });
+                var roles = await _userManager.GetRolesAsync(user);
+
+                Users.Add(new UserViewModel
+                {
+                    Email = user.Email ?? "(no email)",
+                    EmailConfirmed = user.EmailConfirmed,
+                    Roles = roles.ToList()
+                });
+            }
+        }
+        catch (Exception ex)
+        {
+    
+            ErrorMessage = $"Error loading users: {ex.Message}";
         }
     }
 }
