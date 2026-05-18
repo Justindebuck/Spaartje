@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Spaartje.BLL\Spaartje.BLL.csproj" />
+    <ProjectReference Include="..\Spaartje.Domain\Spaartje.Domain.csproj" />
 
 </ItemGroup>
 
