@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Identity;
-using Spaartje.Web.Data;
+using Spaartje.BLL.Services;
+using Spaartje.DAL.Data;
 
 namespace Spaartje.Web.Pages;
 

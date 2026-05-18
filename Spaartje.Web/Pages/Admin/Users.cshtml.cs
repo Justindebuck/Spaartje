@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Spaartje.Web.Data;
+using Spaartje.BLL.Services;
+using Spaartje.DAL.Data;
+using Spaartje.Domain.Models;
 
 namespace Spaartje.Web.Pages.Admin;
 
@@ -9,48 +11,33 @@ namespace Spaartje.Web.Pages.Admin;
 public class UsersModel : PageModel
 {
    
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly IUserService _userService;
 
-    public UsersModel(UserManager<IdentityUser> userManager)
+    public UsersModel(IUserService userService)
     {
-        _userManager = userManager;
+        _userService = userService;
     }
 
-    public List<UserViewModel> Users { get; set; } = new();
+    public List<User> Users { get; set; } = new();
 
      public string? ErrorMessage { get; set; }
 
-    public class UserViewModel
-    {
-        public string Email { get; set; } = string.Empty;
-        public bool EmailConfirmed { get; set; }
     
-        public List<string> Roles { get; set; } = new();
-    }
 
     public async Task OnGetAsync()
     {
        try
         {
-        var allUsers = _userManager.Users.ToList();
-
-    
-        foreach (var user in allUsers)
-            {
-                var roles = await _userManager.GetRolesAsync(user);
-
-                Users.Add(new UserViewModel
-                {
-                    Email = user.Email ?? "(no email)",
-                    EmailConfirmed = user.EmailConfirmed,
-                    Roles = roles.ToList()
-                });
-            }
+        Users = await _userService.GetAllUsersAsync();
         }
         catch (Exception ex)
         {
-    
             ErrorMessage = $"Error loading users: {ex.Message}";
         }
+        }
+
+    
+        
+    
+            
     }
-}

@@ -7,6 +7,8 @@ namespace Spaartje.Web.Pages;
 
 public class LoginModel : PageModel
 {
+
+// Inject the SignInManager to handle user sign-in operations
     private readonly SignInManager<IdentityUser> _signInManager;
 
     public LoginModel(SignInManager<IdentityUser> signInManager)

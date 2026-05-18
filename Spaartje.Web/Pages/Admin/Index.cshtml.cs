@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Spaartje.Web.Data;
+using Spaartje.DAL.Data;
 
 namespace Spaartje.Web.Pages.Admin;
 

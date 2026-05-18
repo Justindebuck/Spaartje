@@ -1,12 +1,16 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Spaartje.Web.Data;
+using Spaartje.BLL.Services;
+using Spaartje.DAL.Data;
+using Spaartje.DAL.Repositories;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+// Register the UserRepository and UserService with the dependency injection container.
+// This allows us to inject IUserService into our Razor Pages and have it automatically
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 
@@ -37,6 +41,11 @@ options.SignIn.RequireConfirmedAccount = false;
      options.SlidingExpiration = true;
  });
 
+// When someone asks for IUserRepository, give them a UserRepository.
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// When someone asks for IUserService, give them a UserService.
+builder.Services.AddScoped<IUserService, UserService>();
 
 
 var app = builder.Build();
