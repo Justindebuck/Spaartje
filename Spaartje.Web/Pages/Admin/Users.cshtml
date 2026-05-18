@@ -13,8 +13,7 @@
         <strong>Error:</strong> @Model.ErrorMessage
     </div>
 }
-else
-{
+
 <p>Total registered users: <strong>@Model.Users.Count</strong></p>
 
 @if (Model.Users.Any())
@@ -28,6 +27,7 @@ else
             </tr>
         </thead>
         <tbody>
+        
             @foreach (var user in Model.Users)
             {
                 <tr style="border-bottom: 1px solid #ddd;">
@@ -54,6 +54,6 @@ else
 {
     <p>No users found.</p>
 }
-}
+
 
 <p style="margin-top: 20px;"><a asp-page="/Admin/Index">← Back to Admin Panel</a></p>
