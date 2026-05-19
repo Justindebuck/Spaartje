@@ -12,7 +12,7 @@ builder.Services.AddRazorPages();
 // Register the UserRepository and UserService with the dependency injection container.
 // This allows us to inject IUserService into our Razor Pages and have it automatically
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Identity services
 builder.Services.AddDefaultIdentity<IdentityUser>(options => {
