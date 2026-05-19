@@ -14,6 +14,8 @@ public class ApplicationDbContext : IdentityDbContext
 
     public DbSet<Category> Categories { get; set; }
 
+    public DbSet<Transaction> Transactions { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -31,6 +33,20 @@ public class ApplicationDbContext : IdentityDbContext
 
         
         });
+
+            modelBuilder.Entity<Transaction>(entity =>
+            {
+                entity.Property(t => t.Amount).HasColumnType("decimal(18,2)");
+    
+
+                entity.Property(t => t.Description).HasMaxLength(250);
+                entity.Property(t => t.UserId).IsRequired();
+    
+                entity.HasOne(t => t.Category)
+                    .WithMany(c => c.Transactions)
+                    .HasForeignKey(t => t.CategoryId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
     }
             
 }
