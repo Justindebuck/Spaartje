@@ -11,14 +11,17 @@ namespace Spaartje.Web.Pages;
 public class DashboardModel : PageModel
 {
    private readonly UserManager<IdentityUser> _userManager;
-
-    public DashboardModel(UserManager<IdentityUser> userManager)
+    private readonly IDashboardService _dashboardService;
+    public DashboardModel(UserManager<IdentityUser> userManager, IDashboardService dashboardService)
     {
         _userManager = userManager;
+        _dashboardService = dashboardService;
     }
     public string UserEmail { get; set; } = string.Empty;
 
     public bool IsAdmin { get; set; }
+    public DashboardSummary? Summary { get; set; }
+
     public async Task OnGetAsync()
     {
       
@@ -31,6 +34,8 @@ public class DashboardModel : PageModel
             // IsInRoleAsync checks the AspNetUserRoles table.
             // Returns true if the user has the "Admin" role.
             IsAdmin = await _userManager.IsInRoleAsync(user, DbSeeder.AdminRole);
+
+             Summary = await _dashboardService.GetSummaryForUserAsync(user.Id);
         }
     }
     

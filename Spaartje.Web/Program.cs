@@ -47,6 +47,21 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // When someone asks for IUserService, give them a UserService.
 builder.Services.AddScoped<IUserService, UserService>();
 
+// Register Category and Transaction repositories and services.
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+// This tells ASP.NET Core: When a constructor asks for ICategoryService, create a CategoryService and give it to them.
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+// Register Transaction repository and service.
+builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+
+// This tells ASP.NET Core: When a constructor asks for ITransactionService, create a TransactionService and give it to them.
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+
+// Register DashboardService and its interface.
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
 
 var app = builder.Build();
 

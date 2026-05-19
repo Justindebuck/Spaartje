@@ -17,7 +17,71 @@
     </div>
 }
 
-<hr />
+<!-- Quick links -->
+<div style="display:flex; gap:12px; margin-bottom:24px;">
+    <a asp-page="/Transactions/Index"
+       style="background:#2c3e50; color:white; padding:10px 20px; border-radius:4px; text-decoration:none;">
+        + Add Transaction
+    </a>
+    <a asp-page="/Categories/Index"
+       style="background:#7f8c8d; color:white; padding:10px 20px; border-radius:4px; text-decoration:none;">
+        Manage Categories
+    </a>
+</div>
 
-<p>This page is only visible to logged-in users.</p>
-<p>This is where your financial dashboard content will go in future phases.</p>
+@if (Model.Summary != null)
+{
+    <!-- Totals row -->
+    <div style="display:flex; gap:16px; margin-bottom:24px;">
+        <div style="flex:1; background:#d4edda; border:1px solid #c3e6cb; padding:20px; border-radius:6px; text-align:center;">
+            <div style="font-size:13px; color:#555; margin-bottom:4px;">Total Income</div>
+            <div style="font-size:28px; font-weight:bold; color:#27ae60;">+€@Model.Summary.TotalIncome.ToString("F2")</div>
+        </div>
+        <div style="flex:1; background:#f8d7da; border:1px solid #f5c6cb; padding:20px; border-radius:6px; text-align:center;">
+            <div style="font-size:13px; color:#555; margin-bottom:4px;">Total Expenses</div>
+            <div style="font-size:28px; font-weight:bold; color:#e74c3c;">-€@Model.Summary.TotalExpenses.ToString("F2")</div>
+        </div>
+        <div style="flex:1; background:@(Model.Summary.Balance >= 0 ? "#d4edda" : "#f8d7da"); border:1px solid #ddd; padding:20px; border-radius:6px; text-align:center;">
+            <div style="font-size:13px; color:#555; margin-bottom:4px;">Balance</div>
+            <div style="font-size:28px; font-weight:bold; color:@(Model.Summary.Balance >= 0 ? "#27ae60" : "#e74c3c");">
+                €@Model.Summary.Balance.ToString("F2")
+            </div>
+        </div>
+    </div>
+
+    <!-- Category breakdown -->
+    @if (Model.Summary.CategoryBreakdown.Any())
+    {
+        <h3>Breakdown by Category</h3>
+        <table style="width:100%; border-collapse:collapse;">
+            <thead>
+                <tr style="background-color:#2c3e50; color:white;">
+                    <th style="padding:10px; text-align:left;">Category</th>
+                    <th style="padding:10px; text-align:right;">Income</th>
+                    <th style="padding:10px; text-align:right;">Expenses</th>
+                    <th style="padding:10px; text-align:right;">Transactions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cat in Model.Summary.CategoryBreakdown)
+                {
+                    <tr style="border-bottom:1px solid #ddd;">
+                        <td style="padding:10px;">@cat.CategoryName</td>
+                        <td style="padding:10px; text-align:right; color:#27ae60;">+€@cat.TotalIncome.ToString("F2")</td>
+                        <td style="padding:10px; text-align:right; color:#e74c3c;">-€@cat.TotalExpenses.ToString("F2")</td>
+                        <td style="padding:10px; text-align:right;">@cat.TransactionCount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p style="color:#666;">No transactions yet. <a asp-page="/Transactions/Index">Add your first transaction →</a></p>
+    }
+}
+else
+{
+    <p style="color:#666;">No financial data available. Start by adding some transactions.</p>
+
+}

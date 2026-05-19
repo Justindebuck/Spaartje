@@ -1,0 +1,78 @@
+@page
+@model Spaartje.Web.Pages.Categories.IndexModel
+
+@{
+    ViewData["Title"] = "My Categories";
+}
+
+<h2>My Categories</h2>
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div style="background:#d4edda; border:1px solid #c3e6cb; padding:10px; border-radius:4px; margin-bottom:16px; color:#155724;">
+        @Model.SuccessMessage
+    </div>
+}
+
+<!-- Add Category Form -->
+<div style="background:#f8f9fa; border:1px solid #ddd; padding:20px; border-radius:6px; margin-bottom:24px;">
+    <h3 style="margin-top:0;">Add New Category</h3>
+    <form method="post">
+        <div class="form-group">
+            <label asp-for="Input.Name">Category Name</label>
+            <input asp-for="Input.Name" type="text" placeholder="e.g. Food, Rent, Salary" />
+            <span asp-validation-for="Input.Name" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Input.Description">Description (optional)</label>
+            <input asp-for="Input.Description" type="text" placeholder="e.g. Groceries and dining out" />
+        </div>
+        <button type="submit">Add Category</button>
+    </form>
+</div>
+
+<!-- Categories List -->
+@if (Model.Categories.Any())
+{
+    <table style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="background-color:#2c3e50; color:white;">
+                <th style="padding:10px; text-align:left;">Name</th>
+                <th style="padding:10px; text-align:left;">Description</th>
+                <th style="padding:10px; text-align:left;">Transactions</th>
+                <th style="padding:10px; text-align:left;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var category in Model.Categories)
+            {
+                <tr style="border-bottom:1px solid #ddd;">
+                    <td style="padding:10px;">@category.Name</td>
+                    <td style="padding:10px; color:#666;">@category.Description</td>
+                    <td style="padding:10px;">@category.Transactions.Count</td>
+                    <td style="padding:10px;">
+                        <!-- Delete form — POST for security -->
+                        <form method="post" asp-page-handler="Delete"
+                              onsubmit="return confirm('Delete this category?');">
+                            <!-- Hidden field sends the category ID with the POST request -->
+                            <input type="hidden" name="categoryId" value="@category.Id" />
+                            <button type="submit"
+                                    style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p style="color:#666;">No categories yet. Add your first category above.</p>
+}
