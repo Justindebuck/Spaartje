@@ -54,4 +54,11 @@ public class TransactionRepository : ITransactionRepository
         _context.Transactions.Remove(transaction);
         await _context.SaveChangesAsync();
     }
+
+    public async Task UpdateAsync(Transaction transaction)
+    {
+        // Mark the transaction as modified.
+        _context.Transactions.Update(transaction);
+        await _context.SaveChangesAsync();
+    }
 }

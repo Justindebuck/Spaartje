@@ -54,4 +54,27 @@ public class TransactionService : ITransactionService
 
         await _transactionRepository.DeleteAsync(transaction);
     }
+
+    public async Task UpdateTransactionAsync(int transactionId, decimal amount, string description,
+        DateTime date, TransactionType type, int categoryId, string userId)
+    {
+        var transaction = await _transactionRepository.GetByIdAsync(transactionId);
+
+        // Business rule: only the owner can update their own transaction.
+        if (transaction == null || transaction.UserId != userId)
+            return;
+
+        // Business rule: amount must be positive.
+        if (amount <= 0)
+            throw new ArgumentException("Amount must be greater than zero.");
+
+        // Update the transaction properties.
+        transaction.Amount = amount;
+        transaction.Description = description;
+        transaction.Date = date;
+        transaction.Type = type;
+        transaction.CategoryId = categoryId;
+
+        await _transactionRepository.UpdateAsync(transaction);
+    }
 }

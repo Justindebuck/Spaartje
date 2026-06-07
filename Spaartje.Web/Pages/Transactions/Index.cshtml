@@ -105,6 +105,13 @@
                         @(isIncome ? "+" : "-")€@transaction.Amount.ToString("F2")
                     </td>
                     <td style="padding:10px;">
+
+
+                        <td style="padding:10px;">
+    <a asp-page="/Transactions/Edit" asp-route-id="@transaction.Id"
+       style="background:#2c3e50; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:14px; margin-right:6px;">
+        Edit
+    </a>
                         <form method="post" asp-page-handler="Delete"
                               onsubmit="return confirm('Delete this transaction?');">
                             <input type="hidden" name="transactionId" value="@transaction.Id" />

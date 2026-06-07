@@ -18,4 +18,7 @@ public interface ITransactionRepository
 
     // Delete a transaction.
     Task DeleteAsync(Transaction transaction);
+
+   // Update an existing transaction
+    Task UpdateAsync(Transaction transaction);
 }
