@@ -88,42 +88,46 @@
                 <th style="padding:10px; text-align:left;">Actions</th>
             </tr>
         </thead>
-        <tbody>
-            @foreach (var transaction in Model.Transactions)
-            {
-                var isIncome = transaction.Type == TransactionType.Income;
-                <tr style="border-bottom:1px solid #ddd;">
-                    <td style="padding:10px;">@transaction.Date.ToString("dd/MM/yyyy")</td>
-                    <td style="padding:10px;">@transaction.Description</td>
-                    <td style="padding:10px;">@(transaction.Category?.Name ?? "—")</td>
-                    <td style="padding:10px;">
-                        <span style="color:@(isIncome ? "#27ae60" : "#e74c3c"); font-weight:bold;">
-                            @transaction.Type
-                        </span>
-                    </td>
-                    <td style="padding:10px; text-align:right; color:@(isIncome ? "#27ae60" : "#e74c3c"); font-weight:bold;">
-                        @(isIncome ? "+" : "-")€@transaction.Amount.ToString("F2")
-                    </td>
-                    <td style="padding:10px;">
-
-
-                        <td style="padding:10px;">
-    <a asp-page="/Transactions/Edit" asp-route-id="@transaction.Id"
-       style="background:#2c3e50; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:14px; margin-right:6px;">
-        Edit
-    </a>
-                        <form method="post" asp-page-handler="Delete"
-                              onsubmit="return confirm('Delete this transaction?');">
-                            <input type="hidden" name="transactionId" value="@transaction.Id" />
-                            <button type="submit"
-                                    style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">
-                                Delete
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-            }
-        </tbody>
+    <tbody>
+    @foreach (var transaction in Model.Transactions)
+    {
+        var isIncome = transaction.Type == TransactionType.Income;
+        <tr style="border-bottom:1px solid #ddd;">
+            <td style="padding:10px; white-space:nowrap;">
+                @transaction.Date.ToString("dd/MM/yyyy")
+            </td>
+            <td style="padding:10px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                @transaction.Description
+            </td>
+            <td style="padding:10px; white-space:nowrap;">
+                @(transaction.Category?.Name ?? "—")
+            </td>
+            <td style="padding:10px;">
+                <span style="color:@(isIncome ? "#27ae60" : "#e74c3c"); font-weight:bold;">
+                    @transaction.Type
+                </span>
+            </td>
+            <td style="padding:10px; text-align:right; color:@(isIncome ? "#27ae60" : "#e74c3c"); font-weight:bold; white-space:nowrap;">
+                @(isIncome ? "+" : "-")€@transaction.Amount.ToString("F2")
+            </td>
+            <td style="padding:10px; white-space:nowrap;">
+                <a asp-page="/Transactions/Edit" asp-route-id="@transaction.Id"
+                   style="background:#2c3e50; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:14px; margin-right:6px;">
+                    Edit
+                </a>
+                <form method="post" asp-page-handler="Delete"
+                      onsubmit="return confirm('Delete this transaction?');"
+                      style="display:inline;">
+                    <input type="hidden" name="transactionId" value="@transaction.Id" />
+                    <button type="submit"
+                            style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">
+                        Delete
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
+</tbody>
     </table>
 }
 else
