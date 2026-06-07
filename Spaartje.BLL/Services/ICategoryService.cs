@@ -15,4 +15,6 @@ public interface ICategoryService
 
     // Delete a category. The userId is used to verify ownership.
     Task DeleteCategoryAsync(int categoryId, string userId);
+
+    Task UpdateCategoryAsync(int categoryId, string name, string description, string userId);
 }

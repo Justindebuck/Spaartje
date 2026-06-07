@@ -58,4 +58,15 @@ public class CategoryRepository : ICategoryRepository
         // Generated SQL: DELETE FROM Categories WHERE Id = @id
         await _context.SaveChangesAsync();
     }
+
+
+    public async Task UpdateAsync(Category category)
+    {
+        // Update stages the category for update.
+        _context.Categories.Update(category);
+
+        // SaveChangesAsync executes the UPDATE statement.
+        // Generated SQL: UPDATE Categories SET Name = @name, Description = @description
+        await _context.SaveChangesAsync();
+    }
 }

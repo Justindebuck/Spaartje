@@ -49,4 +49,20 @@ public class CategoryService : ICategoryService
 
         await _categoryRepository.DeleteAsync(category);
     }
+
+    public async Task UpdateCategoryAsync(int categoryId, string name, string description, string userId)
+    {
+        var category = await _categoryRepository.GetByIdAsync(categoryId);
+
+        // only update if the category exists AND
+        // belongs to the user making the request.
+        if (category == null || category.UserId != userId)
+            return;
+
+        // Update the properties of the existing category.
+        category.Name = name;
+        category.Description = description;
+
+        await _categoryRepository.UpdateAsync(category);
+    }
 }

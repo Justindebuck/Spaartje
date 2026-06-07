@@ -18,4 +18,6 @@ public interface ICategoryRepository
 
     // Delete a category from the database.
     Task DeleteAsync(Category category);
+    
+    Task UpdateAsync(Category category);
 }
