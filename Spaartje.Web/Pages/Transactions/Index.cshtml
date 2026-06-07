@@ -6,131 +6,140 @@
     ViewData["Title"] = "My Transactions";
 }
 
-<h2>My Transactions</h2>
+<div style="max-width:900px; margin:0 auto; padding:0 16px;">
 
-@if (!string.IsNullOrEmpty(Model.ErrorMessage))
-{
-    <div class="alert alert-danger">@Model.ErrorMessage</div>
-}
+    <h2>My Transactions</h2>
 
-@if (!string.IsNullOrEmpty(Model.SuccessMessage))
-{
-    <div style="background:#d4edda; border:1px solid #c3e6cb; padding:10px; border-radius:4px; margin-bottom:16px; color:#155724;">
-        @Model.SuccessMessage
-    </div>
-}
+    <a asp-page="/Dashboard" style="display:inline-block; margin-bottom:16px; color:#2c3e50; text-decoration:none; font-size:14px;">
+    ← Back to Dashboard
+</a>
 
-<!-- Add Transaction Form -->
-<div style="background:#f8f9fa; border:1px solid #ddd; padding:20px; border-radius:6px; margin-bottom:24px;">
-    <h3 style="margin-top:0;">Add New Transaction</h3>
-
-    @if (!Model.Categories.Any())
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
     {
-        <p style="color:#e74c3c;">
-            You need at least one category before adding transactions.
-            <a asp-page="/Categories/Index">Add a category first →</a>
-        </p>
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+    {
+        <div style="background:#d4edda; border:1px solid #c3e6cb; padding:10px; border-radius:4px; margin-bottom:16px; color:#155724;">
+            @Model.SuccessMessage
+        </div>
+    }
+
+    <!-- Add Transaction Form -->
+    <div style="background:#f8f9fa; border:1px solid #ddd; padding:20px; border-radius:6px; margin-bottom:24px;">
+        <h3 style="margin-top:0;">Add New Transaction</h3>
+
+        @if (!Model.Categories.Any())
+        {
+            <p style="color:#e74c3c;">
+                You need at least one category before adding transactions.
+                <a asp-page="/Categories/Index">Add a category first →</a>
+            </p>
+        }
+        else
+        {
+            <form method="post">
+                <div class="form-group">
+                    <label asp-for="Input.Description">Description</label>
+                    <input asp-for="Input.Description" type="text" placeholder="e.g. Weekly groceries" />
+                    <span asp-validation-for="Input.Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Amount">Amount (€)</label>
+                    <input asp-for="Input.Amount" type="number" step="0.01" min="0.01" placeholder="0.00" />
+                    <span asp-validation-for="Input.Amount" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Date">Date</label>
+                    <input asp-for="Input.Date" type="date" />
+                    <span asp-validation-for="Input.Date" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.Type">Type</label>
+                    <select asp-for="Input.Type" asp-items="Model.TransactionTypeOptions"
+                            style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Input.CategoryId">Category</label>
+                    <select asp-for="Input.CategoryId" asp-items="Model.CategoryOptions"
+                            style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                        <option value="">-- Select a category --</option>
+                    </select>
+                    <span asp-validation-for="Input.CategoryId" class="text-danger"></span>
+                </div>
+
+                <button type="submit">Add Transaction</button>
+            </form>
+        }
+    </div>
+
+    <!-- Transactions Table -->
+    @if (Model.Transactions.Any())
+    {
+        <div style="overflow-x:auto;">
+            <table style="width:100%; border-collapse:collapse; table-layout:fixed;">
+                <thead>
+                    <tr style="background-color:#2c3e50; color:white;">
+                        <th style="padding:10px; text-align:left; width:110px;">Date</th>
+                        <th style="padding:10px; text-align:left;">Description</th>
+                        <th style="padding:10px; text-align:left; width:130px;">Category</th>
+                        <th style="padding:10px; text-align:left; width:90px;">Type</th>
+                        <th style="padding:10px; text-align:right; width:100px;">Amount</th>
+                        <th style="padding:10px; text-align:left; width:130px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var transaction in Model.Transactions)
+                    {
+                        var isIncome = transaction.Type == TransactionType.Income;
+                        <tr style="border-bottom:1px solid #ddd;">
+                            <td style="padding:10px; white-space:nowrap;">
+                                @transaction.Date.ToString("dd/MM/yyyy")
+                            </td>
+                            <td style="padding:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                @transaction.Description
+                            </td>
+                            <td style="padding:10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                @(transaction.Category?.Name ?? "—")
+                            </td>
+                            <td style="padding:10px;">
+                                <span style="color:@(isIncome ? "#27ae60" : "#e74c3c"); font-weight:bold;">
+                                    @transaction.Type
+                                </span>
+                            </td>
+                            <td style="padding:10px; text-align:right; color:@(isIncome ? "#27ae60" : "#e74c3c"); font-weight:bold; white-space:nowrap;">
+                                @(isIncome ? "+" : "-")€@transaction.Amount.ToString("F2")
+                            </td>
+                            <td style="padding:10px; white-space:nowrap;">
+                                <a asp-page="/Transactions/Edit" asp-route-id="@transaction.Id"
+                                   style="background:#2c3e50; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:14px; margin-right:6px;">
+                                    Edit
+                                </a>
+                                <form method="post" asp-page-handler="Delete"
+                                      onsubmit="return confirm('Delete this transaction?');"
+                                      style="display:inline;">
+                                    <input type="hidden" name="transactionId" value="@transaction.Id" />
+                                    <button type="submit"
+                                            style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
     }
     else
     {
-        <form method="post">
-            <div class="form-group">
-                <label asp-for="Input.Description">Description</label>
-                <input asp-for="Input.Description" type="text" placeholder="e.g. Weekly groceries" />
-                <span asp-validation-for="Input.Description" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Input.Amount">Amount (€)</label>
-                <input asp-for="Input.Amount" type="number" step="0.01" min="0.01" placeholder="0.00" />
-                <span asp-validation-for="Input.Amount" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Input.Date">Date</label>
-                <input asp-for="Input.Date" type="date" />
-                <span asp-validation-for="Input.Date" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Input.Type">Type</label>
-                <!-- select renders a dropdown. asp-items creates the options from an enum. -->
-                <select asp-for="Input.Type" asp-items="Model.TransactionTypeOptions"
-                        style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Input.CategoryId">Category</label>
-                <select asp-for="Input.CategoryId" asp-items="Model.CategoryOptions"
-                        style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                    <option value="">-- Select a category --</option>
-                </select>
-                <span asp-validation-for="Input.CategoryId" class="text-danger"></span>
-            </div>
-
-            <button type="submit">Add Transaction</button>
-        </form>
+        <p style="color:#666;">No transactions yet. Add your first transaction above.</p>
     }
+
 </div>
-
-<!-- Transactions Table -->
-@if (Model.Transactions.Any())
-{
-    <table style="width:100%; border-collapse:collapse;">
-        <thead>
-            <tr style="background-color:#2c3e50; color:white;">
-                <th style="padding:10px; text-align:left;">Date</th>
-                <th style="padding:10px; text-align:left;">Description</th>
-                <th style="padding:10px; text-align:left;">Category</th>
-                <th style="padding:10px; text-align:left;">Type</th>
-                <th style="padding:10px; text-align:right;">Amount</th>
-                <th style="padding:10px; text-align:left;">Actions</th>
-            </tr>
-        </thead>
-    <tbody>
-    @foreach (var transaction in Model.Transactions)
-    {
-        var isIncome = transaction.Type == TransactionType.Income;
-        <tr style="border-bottom:1px solid #ddd;">
-            <td style="padding:10px; white-space:nowrap;">
-                @transaction.Date.ToString("dd/MM/yyyy")
-            </td>
-            <td style="padding:10px; max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                @transaction.Description
-            </td>
-            <td style="padding:10px; white-space:nowrap;">
-                @(transaction.Category?.Name ?? "—")
-            </td>
-            <td style="padding:10px;">
-                <span style="color:@(isIncome ? "#27ae60" : "#e74c3c"); font-weight:bold;">
-                    @transaction.Type
-                </span>
-            </td>
-            <td style="padding:10px; text-align:right; color:@(isIncome ? "#27ae60" : "#e74c3c"); font-weight:bold; white-space:nowrap;">
-                @(isIncome ? "+" : "-")€@transaction.Amount.ToString("F2")
-            </td>
-            <td style="padding:10px; white-space:nowrap;">
-                <a asp-page="/Transactions/Edit" asp-route-id="@transaction.Id"
-                   style="background:#2c3e50; color:white; padding:6px 12px; border-radius:4px; text-decoration:none; font-size:14px; margin-right:6px;">
-                    Edit
-                </a>
-                <form method="post" asp-page-handler="Delete"
-                      onsubmit="return confirm('Delete this transaction?');"
-                      style="display:inline;">
-                    <input type="hidden" name="transactionId" value="@transaction.Id" />
-                    <button type="submit"
-                            style="background:#e74c3c; color:white; border:none; padding:6px 12px; border-radius:4px; cursor:pointer;">
-                        Delete
-                    </button>
-                </form>
-            </td>
-        </tr>
-    }
-</tbody>
-    </table>
-}
-else
-{
-    <p style="color:#666;">No transactions yet. Add your first transaction above.</p>
-}
