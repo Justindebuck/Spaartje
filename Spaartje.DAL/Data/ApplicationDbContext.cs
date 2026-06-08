@@ -28,6 +28,9 @@ public class ApplicationDbContext : IdentityDbContext
 
              entity.Property(c => c.UserId).IsRequired();
 
+             entity.Property(c => c.BudgetLimit)
+          .HasColumnType("decimal(18,2)");
+
             
 
 
