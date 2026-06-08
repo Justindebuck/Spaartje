@@ -65,4 +65,17 @@ public class CategoryService : ICategoryService
 
         await _categoryRepository.UpdateAsync(category);
     }
+    public async Task SetBudgetLimitAsync(int categoryId, decimal? budgetLimit, string userId)
+{
+    var category = await _categoryRepository.GetByIdAsync(categoryId);
+
+    // Ownership check — only the owner can set a budget limit
+    if (category == null || category.UserId != userId)
+        return;
+
+    // Set the limit — null means no limit
+    category.BudgetLimit = budgetLimit;
+
+    await _categoryRepository.UpdateAsync(category);
+}
 }

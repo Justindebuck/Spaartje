@@ -35,6 +35,9 @@ public class EditModel : PageModel
         public string Name { get; set; } = string.Empty;
 
         public string Description { get; set; } = string.Empty;
+
+        [Range(0.01, double.MaxValue, ErrorMessage = "Budget limit must be greater than zero")]
+        public decimal? BudgetLimit { get; set; }
     }
 
     // OnGetAsync runs when the user visits /Categories/Edit?id=1
@@ -53,6 +56,7 @@ public class EditModel : PageModel
         // Pre-fill the form with the existing values
         Input.Name = category.Name;
         Input.Description = category.Description;
+        Input.BudgetLimit = category.BudgetLimit; 
 
         return Page();
     }
@@ -67,6 +71,11 @@ public class EditModel : PageModel
         if (userId == null) return RedirectToPage("/Login");
 
         await _categoryService.UpdateCategoryAsync(Id, Input.Name, Input.Description, userId);
+
+        await _categoryService.SetBudgetLimitAsync(
+        Id,
+        Input.BudgetLimit,
+        userId);
 
         // Go back to the categories list after saving
         return RedirectToPage("/Categories/Index");

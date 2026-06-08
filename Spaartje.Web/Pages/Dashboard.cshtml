@@ -54,6 +54,66 @@
 
         </div>
 
+        @if (Model.BudgetSummaries.Any())
+{
+    <div style="background:#f8f9fa; border:1px solid #ddd; border-radius:8px; padding:20px; margin-bottom:32px;">
+        <h3 style="margin-top:0; font-size:16px; color:#2c3e50;">
+            Budget Overview — @DateTime.Now.ToString("MMMM yyyy")
+        </h3>
+
+        @foreach (var budget in Model.BudgetSummaries)
+        {
+            var percentage = Math.Min((double)budget.PercentageUsed, 100);
+            var barColour  = budget.IsOverBudget ? "#e74c3c"
+                           : budget.PercentageUsed >= 75 ? "#f39c12"
+                           : "#2ecc71";
+            var textColour = budget.IsOverBudget ? "#e74c3c" : "#2c3e50";
+
+            <div style="margin-bottom:20px;">
+
+                <!-- Category name and amounts -->
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                    <span style="font-weight:bold; color:#2c3e50;">@budget.CategoryName</span>
+                    <span style="font-size:14px; color:@textColour;">
+                        @if (budget.IsOverBudget)
+                        {
+                            <span style="font-weight:bold;">OVER BUDGET</span>
+                            <span> — €@budget.SpentThisMonth.ToString("F2") / €@budget.BudgetLimit.ToString("F2")</span>
+                        }
+                        else
+                        {
+                            <span>€@budget.SpentThisMonth.ToString("F2") / €@budget.BudgetLimit.ToString("F2")</span>
+                            <span style="color:#666;"> (@budget.PercentageUsed%)</span>
+                        }
+                    </span>
+                </div>
+
+                <!-- Progress bar background -->
+                <div style="background:#e0e0e0; border-radius:4px; height:16px; overflow:hidden;">
+                    <!-- Filled portion -->
+                    <div style="width:@(percentage)%; background:@barColour; height:100%; border-radius:4px; transition:width 0.3s;">
+                    </div>
+                </div>
+
+                <!-- Remaining amount -->
+                @if (!budget.IsOverBudget)
+                {
+                    <div style="font-size:12px; color:#666; margin-top:4px;">
+                        €@budget.Remaining.ToString("F2") remaining this month
+                    </div>
+                }
+                else
+                {
+                    <div style="font-size:12px; color:#e74c3c; margin-top:4px;">
+                        €@Math.Abs(budget.Remaining).ToString("F2") over budget
+                    </div>
+                }
+
+            </div>
+        }
+    </div>
+}
+
         <!-- Category Breakdown Table -->
         <div style="background:#f8f9fa; border:1px solid #ddd; border-radius:8px; padding:20px; margin-bottom:32px;">
             <h3 style="margin-top:0; font-size:16px; color:#2c3e50;">Category Breakdown</h3>

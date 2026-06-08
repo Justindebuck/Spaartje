@@ -21,6 +21,7 @@ public class DashboardModel : PageModel
 
     public bool IsAdmin { get; set; }
     public DashboardSummary? Summary { get; set; }
+      public List<BudgetSummary> BudgetSummaries { get; set; } = new();   
 
     public async Task OnGetAsync()
     {
@@ -36,6 +37,8 @@ public class DashboardModel : PageModel
             IsAdmin = await _userManager.IsInRoleAsync(user, DbSeeder.AdminRole);
 
              Summary = await _dashboardService.GetSummaryForUserAsync(user.Id);
+
+             BudgetSummaries = await _dashboardService.GetBudgetSummaryAsync(user.Id);
         }
     }
     

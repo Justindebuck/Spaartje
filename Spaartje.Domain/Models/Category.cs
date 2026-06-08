@@ -12,5 +12,7 @@ namespace Spaartje.Domain.Models
         public string UserId { get; set; } = string.Empty;
 
         public List<Transaction> Transactions { get; set; } = new();
+
+        public decimal? BudgetLimit { get; set; }
     }
 }

@@ -17,4 +17,6 @@ public interface ICategoryService
     Task DeleteCategoryAsync(int categoryId, string userId);
 
     Task UpdateCategoryAsync(int categoryId, string name, string description, string userId);
+
+     Task SetBudgetLimitAsync(int categoryId, decimal? budgetLimit, string userId);
 }
