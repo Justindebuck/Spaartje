@@ -16,6 +16,10 @@ public class ApplicationDbContext : IdentityDbContext
 
     public DbSet<Transaction> Transactions { get; set; }
 
+     public DbSet<Group> Groups { get; set; }                       
+    public DbSet<GroupMember> GroupMembers { get; set; }           
+    public DbSet<GroupTransaction> GroupTransactions { get; set; } 
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -50,6 +54,31 @@ public class ApplicationDbContext : IdentityDbContext
                     .HasForeignKey(t => t.CategoryId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+
+
+            
+            modelBuilder.Entity<Group>()
+                .Property(g => g.BudgetLimit)
+                .HasColumnType("decimal(18,2)");
+
+        
+             modelBuilder.Entity<GroupTransaction>()
+                .Property(t => t.Amount)
+                 .HasColumnType("decimal(18,2)");
+
+      
+            modelBuilder.Entity<GroupMember>()
+                .HasOne<Group>()
+                .WithMany(g => g.Members)
+                .HasForeignKey(gm => gm.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+        
+            modelBuilder.Entity<GroupTransaction>()
+                .HasOne<Group>()
+                .WithMany(g => g.Transactions)
+                .HasForeignKey(gt => gt.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
     }
             
 }
