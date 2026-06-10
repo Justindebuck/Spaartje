@@ -62,6 +62,10 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 // Register DashboardService and its interface.
 builder.Services.AddScoped<IDashboardService, DashboardService>();
 
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+
+builder.Services.AddScoped<IGroupService, GroupService>();
+
 
 var app = builder.Build();
 

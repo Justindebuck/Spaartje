@@ -1,0 +1,75 @@
+@page
+@model Spaartje.Web.Pages.Groups.IndexModel
+
+@{
+    ViewData["Title"] = "My Groups";
+}
+
+<div style="max-width:900px; margin:0 auto; padding:0 16px;">
+
+    <a asp-page="/Dashboard"
+       style="display:inline-block; margin-bottom:16px; color:#2c3e50; text-decoration:none; font-size:14px;">
+        ← Back to Dashboard
+    </a>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <h2 style="margin:0;">My Groups</h2>
+        <a asp-page="/Groups/Create"
+           style="background:#2c3e50; color:white; padding:10px 20px; border-radius:4px; text-decoration:none; font-size:14px;">
+            + Create Group
+        </a>
+    </div>
+
+    @if (!Model.Groups.Any())
+    {
+        <div style="background:#f8f9fa; border:1px solid #ddd; border-radius:8px; padding:40px; text-align:center; color:#666;">
+            <p style="margin:0;">You are not part of any groups yet.</p>
+            <a asp-page="/Groups/Create"
+               style="display:inline-block; margin-top:12px; color:#2c3e50;">
+                Create your first group →
+            </a>
+        </div>
+    }
+    else
+    {
+        <div style="display:flex; flex-direction:column; gap:16px;">
+            @foreach (var group in Model.Groups)
+            {
+                var isManager = group.OwnerId == Model.CurrentUserId;
+
+                <div style="background:white; border:1px solid #ddd; border-radius:8px; padding:20px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+
+                        <div>
+                            <div style="font-size:18px; font-weight:bold; color:#2c3e50;">
+                                @group.Name
+                            </div>
+                            <div style="font-size:13px; color:#666; margin-top:4px;">
+                                @group.Members.Count member@(group.Members.Count == 1 ? "" : "s")
+                                @if (isManager)
+                                {
+                                    <span style="margin-left:8px; background:#2c3e50; color:white; padding:2px 8px; border-radius:4px; font-size:11px;">
+                                        Manager
+                                    </span>
+                                }
+                            </div>
+                            @if (group.BudgetLimit.HasValue)
+                            {
+                                <div style="font-size:13px; color:#666; margin-top:4px;">
+                                    Budget: €@group.BudgetLimit.Value.ToString("F2") / month
+                                </div>
+                            }
+                        </div>
+
+                        <a asp-page="/Groups/Details" asp-route-id="@group.Id"
+                           style="background:#2c3e50; color:white; padding:8px 16px; border-radius:4px; text-decoration:none; font-size:14px;">
+                            View →
+                        </a>
+
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+</div>

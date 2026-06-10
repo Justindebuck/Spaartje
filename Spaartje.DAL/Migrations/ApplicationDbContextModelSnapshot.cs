@@ -253,6 +253,93 @@ namespace Spaartje.DAL.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Spaartje.Domain.Models.Group", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal?>("BudgetLimit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OwnerId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Groups");
+                });
+
+            modelBuilder.Entity("Spaartje.Domain.Models.GroupMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("GroupMembers");
+                });
+
+            modelBuilder.Entity("Spaartje.Domain.Models.GroupTransaction", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("GroupId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("GroupId");
+
+                    b.ToTable("GroupTransactions");
+                });
+
             modelBuilder.Entity("Spaartje.Domain.Models.Transaction", b =>
                 {
                     b.Property<int>("Id")
@@ -340,6 +427,24 @@ namespace Spaartje.DAL.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Spaartje.Domain.Models.GroupMember", b =>
+                {
+                    b.HasOne("Spaartje.Domain.Models.Group", null)
+                        .WithMany("Members")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Spaartje.Domain.Models.GroupTransaction", b =>
+                {
+                    b.HasOne("Spaartje.Domain.Models.Group", null)
+                        .WithMany("Transactions")
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Spaartje.Domain.Models.Transaction", b =>
                 {
                     b.HasOne("Spaartje.Domain.Models.Category", "Category")
@@ -353,6 +458,13 @@ namespace Spaartje.DAL.Migrations
 
             modelBuilder.Entity("Spaartje.Domain.Models.Category", b =>
                 {
+                    b.Navigation("Transactions");
+                });
+
+            modelBuilder.Entity("Spaartje.Domain.Models.Group", b =>
+                {
+                    b.Navigation("Members");
+
                     b.Navigation("Transactions");
                 });
 #pragma warning restore 612, 618
