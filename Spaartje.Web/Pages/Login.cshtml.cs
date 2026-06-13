@@ -1,66 +1,55 @@
-using Microsoft.AspNetCore.Identity;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.ComponentModel.DataAnnotations;
-
+using Spaartje.BLL.Services;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 namespace Spaartje.Web.Pages;
 
 public class LoginModel : PageModel
 {
 
-// Inject the SignInManager to handle user sign-in operations
-    private readonly SignInManager<IdentityUser> _signInManager;
 
-    public LoginModel(SignInManager<IdentityUser> signInManager)
+     private readonly IUserService _userService;
+
+    public LoginModel(IUserService userService)
     {
-        _signInManager = signInManager;
+        _userService = userService;
     }
 
-    [BindProperty]
-    public InputModel Input { get; set; } = new();
+    [BindProperty] public string Email    { get; set; } = string.Empty;
+    [BindProperty] public string Password { get; set; } = string.Empty;
 
-    public string ErrorMessage { get; set; } = string.Empty;
+    public string? ErrorMessage { get; set; }
 
-    public class InputModel
+    public async Task<IActionResult> OnPostAsync()
     {
-        [Required(ErrorMessage = "Email is required")]
-        [EmailAddress(ErrorMessage = "Please enter a valid email address")]
-        public string Email { get; set; } = string.Empty;
+        var user = await _userService.ValidateLoginAsync(Email, Password);
 
-        [Required(ErrorMessage = "Password is required")]
-        [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
-    }
-
-    public void OnGet(string? returnUrl = null)
-    {
-        ViewData["ReturnUrl"] = returnUrl;
-    }
-
-    public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
-    {
-        if (!ModelState.IsValid)
+        if (user == null)
         {
+            ErrorMessage = "Invalid email or password.";
             return Page();
         }
 
-        var result = await _signInManager.PasswordSignInAsync(
-            Input.Email,
-            Input.Password,
-            isPersistent: false,
-            lockoutOnFailure: false);
-
-        if (result.Succeeded)
+        // Build the claims that go into the cookie
+        var claims = new List<Claim>
         {
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
-                return LocalRedirect(returnUrl);
-            }
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name,           user.UserName),
+            new Claim(ClaimTypes.Email,          user.Email),
+            new Claim(ClaimTypes.Role,           user.Role)
+        };
 
-            return RedirectToPage("/Dashboard");
-        }
+        var identity  = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
 
-        ErrorMessage = "Invalid email or password. Please try again.";
-        return Page();
+        // Create the cookie — this is what signs the user in
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+        return RedirectToPage("/Dashboard");
     }
+
+  
 }

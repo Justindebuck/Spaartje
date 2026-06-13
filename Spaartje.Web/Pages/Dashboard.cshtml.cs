@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Identity;
+
 using Spaartje.BLL.Services;
-using Spaartje.DAL.Data;
+
+using System.Security.Claims;
+
 
 namespace Spaartje.Web.Pages;
 
@@ -10,11 +12,10 @@ namespace Spaartje.Web.Pages;
 [Authorize]
 public class DashboardModel : PageModel
 {
-   private readonly UserManager<IdentityUser> _userManager;
+
     private readonly IDashboardService _dashboardService;
-    public DashboardModel(UserManager<IdentityUser> userManager, IDashboardService dashboardService)
+    public DashboardModel(IDashboardService dashboardService)
     {
-        _userManager = userManager;
         _dashboardService = dashboardService;
     }
     public string UserEmail { get; set; } = string.Empty;
@@ -27,19 +28,15 @@ public class DashboardModel : PageModel
     {
       
         UserEmail = User.Identity?.Name ?? "Unknown";
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return;
 
-         var user = await _userManager.GetUserAsync(User);
+        var userId = int.Parse(userIdClaim);
 
-        if (user != null)
-        {
-            // IsInRoleAsync checks the AspNetUserRoles table.
-            // Returns true if the user has the "Admin" role.
-            IsAdmin = await _userManager.IsInRoleAsync(user, DbSeeder.AdminRole);
+        IsAdmin = User.IsInRole("Admin");
+        Summary = await _dashboardService.GetSummaryForUserAsync(userId);
 
-             Summary = await _dashboardService.GetSummaryForUserAsync(user.Id);
-
-             BudgetSummaries = await _dashboardService.GetBudgetSummaryAsync(user.Id);
+        BudgetSummaries = await _dashboardService.GetBudgetSummaryAsync(userId);
         }
     }
     
-}
