@@ -14,7 +14,7 @@ public class User
     public string Username{ get; set; } = string.Empty;
     public string role { get; set; } = "user"; // Default role is "user", can be changed to "admin" for admin users.
 
-    
+     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     
 }

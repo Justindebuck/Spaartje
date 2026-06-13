@@ -29,6 +29,6 @@ namespace Spaartje.Domain.Models
 
         // The UserId property is a foreign key that links this transaction to the user who created it.
 
-        public string UserId { get; set; } = string.Empty;
+        public int UserId { get; set; }
     }
 }

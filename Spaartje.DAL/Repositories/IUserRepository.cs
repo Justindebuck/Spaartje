@@ -15,4 +15,10 @@ public interface IUserRepository
     // Find a single user by their email address.
     // Returns null if no user with that email exists.
     Task<User?> GetUserByEmailAsync(string email);
+
+    Task<User?> GetUserByIdAsync(int id);
+
+    Task AddUserAsync(User user);
+
+    Task<bool> EmailExistsAsync(string email);
 }

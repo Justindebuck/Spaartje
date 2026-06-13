@@ -1,16 +1,18 @@
 
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
 using Microsoft.EntityFrameworkCore;
 using Spaartje.Domain.Models;
 
 namespace Spaartje.DAL.Data;
 
-public class ApplicationDbContext : IdentityDbContext
+public class ApplicationDbContext : DbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
+    // DbSet properties for each entity in the domain model
+    public DbSet<User> Users { get; set; }
 
     public DbSet<Category> Categories { get; set; }
 

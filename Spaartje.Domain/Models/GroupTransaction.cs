@@ -13,5 +13,5 @@ public class GroupTransaction
     public TransactionType Type { get; set; }
 
     // Which user added this transaction
-    public string UserId { get; set; } = string.Empty;
+    public int UserId { get; set; }
 }
