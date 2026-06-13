@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,12 +13,12 @@ namespace Spaartje.Web.Pages.Groups;
 public class DetailsModel : PageModel
 {
     private readonly IGroupService _groupService;
-    private readonly UserManager<IdentityUser> _userManager;
+   
 
-    public DetailsModel(IGroupService groupService, UserManager<IdentityUser> userManager)
+    public DetailsModel(IGroupService groupService)
     {
         _groupService = groupService;
-        _userManager = userManager;
+        
     }
 
     // The group Id comes from the URL: /Groups/Details?id=1
@@ -79,9 +79,9 @@ public class DetailsModel : PageModel
     // Runs when the Add Transaction form is submitted
     public async Task<IActionResult> OnPostAddTransactionAsync()
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return RedirectToPage("/Login");
-
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Account/Login");
+        var userId = int.Parse(userIdClaim);
         // Only validate the transaction fields
         if (!ModelState["TransactionInput.Description"]!.Errors.Any() == false ||
             !ModelState["TransactionInput.Amount"]!.Errors.Any() == false ||
@@ -124,8 +124,9 @@ public class DetailsModel : PageModel
     // Runs when the Invite Member form is submitted
     public async Task<IActionResult> OnPostInviteMemberAsync()
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return RedirectToPage("/Login");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Account/Login");
+        var userId = int.Parse(userIdClaim);
 
         var error = await _groupService.AddMemberByEmailAsync(
             Id,
@@ -148,10 +149,11 @@ public class DetailsModel : PageModel
     }
 
     // Runs when the Remove Member button is clicked
-    public async Task<IActionResult> OnPostRemoveMemberAsync(string memberUserId)
+    public async Task<IActionResult> OnPostRemoveMemberAsync(int memberUserId)
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return RedirectToPage("/Login");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Account/Login");
+        var userId = int.Parse(userIdClaim);
 
         await _groupService.RemoveMemberAsync(Id, memberUserId, userId);
 
@@ -161,8 +163,10 @@ public class DetailsModel : PageModel
     // Runs when the Delete Group button is clicked
     public async Task<IActionResult> OnPostDeleteGroupAsync()
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return RedirectToPage("/Login");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Account/Login");
+        var userId = int.Parse(userIdClaim);
+     ;
 
         await _groupService.DeleteGroupAsync(Id, userId);
 
@@ -172,10 +176,11 @@ public class DetailsModel : PageModel
     // Private helper — loads all the data the page needs
     private async Task<IActionResult> LoadPageAsync()
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return RedirectToPage("/Login");
+         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Account/Login");
+        var userId = int.Parse(userIdClaim);
 
-        CurrentUserId = userId;
+        CurrentUserId = userIdClaim;
 
         Group = await _groupService.GetGroupByIdAsync(Id, userId);
 

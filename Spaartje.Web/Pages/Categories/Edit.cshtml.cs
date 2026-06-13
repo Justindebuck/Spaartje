@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
@@ -11,12 +11,11 @@ namespace Spaartje.Web.Pages.Categories;
 public class EditModel : PageModel
 {
     private readonly ICategoryService _categoryService;
-    private readonly UserManager<IdentityUser> _userManager;
 
-    public EditModel(ICategoryService categoryService, UserManager<IdentityUser> userManager)
+    public EditModel(ICategoryService categoryService)
     {
         _categoryService = categoryService;
-        _userManager = userManager;
+       
     }
 
     // The category Id comes from the URL: /Categories/Edit?id=1
@@ -44,8 +43,9 @@ public class EditModel : PageModel
     // It loads the existing category and pre-fills the form
     public async Task<IActionResult> OnGetAsync()
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return RedirectToPage("/Login");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Account/Login");
+        var userId = int.Parse(userIdClaim);
 
         var category = await _categoryService.GetByIdAsync(Id);
 
@@ -67,15 +67,13 @@ public class EditModel : PageModel
         if (!ModelState.IsValid)
             return Page();
 
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return RedirectToPage("/Login");
+       var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Account/Login");
+        var userId = int.Parse(userIdClaim);
 
         await _categoryService.UpdateCategoryAsync(Id, Input.Name, Input.Description, userId);
 
-        await _categoryService.SetBudgetLimitAsync(
-        Id,
-        Input.BudgetLimit,
-        userId);
+        await _categoryService.SetBudgetLimitAsync(Id,Input.BudgetLimit,userId);
 
         // Go back to the categories list after saving
         return RedirectToPage("/Categories/Index");

@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Spaartje.BLL.Services;
 using Spaartje.Domain.Models;
+
+using System.Security.Claims;
 
 namespace Spaartje.Web.Pages.Groups;
 
@@ -10,12 +11,12 @@ namespace Spaartje.Web.Pages.Groups;
 public class IndexModel : PageModel
 {
     private readonly IGroupService _groupService;
-    private readonly UserManager<IdentityUser> _userManager;
 
-    public IndexModel(IGroupService groupService, UserManager<IdentityUser> userManager)
+
+    public IndexModel(IGroupService groupService)
     {
         _groupService = groupService;
-        _userManager = userManager;
+       
     }
 
     public List<Group> Groups { get; set; } = new();
@@ -23,10 +24,11 @@ public class IndexModel : PageModel
 
     public async Task OnGetAsync()
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return;
 
-        CurrentUserId = userId;
+        var userId = int.Parse(userIdClaim);
+        CurrentUserId = userIdClaim;
         Groups = await _groupService.GetGroupsForUserAsync(userId);
     }
 }

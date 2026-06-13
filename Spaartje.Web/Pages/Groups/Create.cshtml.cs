@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using Spaartje.BLL.Services;
+using System.Security.Claims;
 
 namespace Spaartje.Web.Pages.Groups;
 
@@ -11,12 +11,11 @@ namespace Spaartje.Web.Pages.Groups;
 public class CreateModel : PageModel
 {
     private readonly IGroupService _groupService;
-    private readonly UserManager<IdentityUser> _userManager;
 
-    public CreateModel(IGroupService groupService, UserManager<IdentityUser> userManager)
+    public CreateModel(IGroupService groupService)
     {
         _groupService = groupService;
-        _userManager = userManager;
+        
     }
 
     [BindProperty]
@@ -39,8 +38,10 @@ public class CreateModel : PageModel
         if (!ModelState.IsValid)
             return Page();
 
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return RedirectToPage("/Login");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Login");
+
+        var userId = int.Parse(userIdClaim);
 
         var group = await _groupService.CreateGroupAsync(
             Input.Name,

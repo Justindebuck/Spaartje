@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.ComponentModel.DataAnnotations;
 using Spaartje.BLL.Services;
 using Spaartje.Domain.Models;
+using System.Security.Claims;
 
 namespace Spaartje.Web.Pages.Categories;
 
@@ -13,12 +13,12 @@ namespace Spaartje.Web.Pages.Categories;
 public class IndexModel : PageModel
 {
     private readonly ICategoryService _categoryService;
-    private readonly UserManager<IdentityUser> _userManager;
+  
 
-    public IndexModel(ICategoryService categoryService, UserManager<IdentityUser> userManager)
+    public IndexModel(ICategoryService categoryService)
     {
         _categoryService = categoryService;
-        _userManager = userManager;
+       
     }
 
     // The list of categories shown in the table.
@@ -56,10 +56,9 @@ public class IndexModel : PageModel
 
         // Get the currently logged-in user's ID.
         // We need this to associate the new category with the correct user.
-        var userId = _userManager.GetUserId(User);
-
-        if (userId == null)
-            return RedirectToPage("/Login");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Account/Login");
+        var userId = int.Parse(userIdClaim);
 
         await _categoryService.CreateCategoryAsync(Input.Name, Input.Description, userId);
 
@@ -77,10 +76,9 @@ public class IndexModel : PageModel
     // The method name suffix "Delete" matches asp-page-handler="Delete" in the form.
     public async Task<IActionResult> OnPostDeleteAsync(int categoryId)
     {
-        var userId = _userManager.GetUserId(User);
-
-        if (userId == null)
-            return RedirectToPage("/Login");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Account/Login");
+        var userId = int.Parse(userIdClaim);
 
         await _categoryService.DeleteCategoryAsync(categoryId, userId);
 
@@ -92,10 +90,10 @@ public class IndexModel : PageModel
     // Private helper to avoid repeating the load logic.
     private async Task LoadCategoriesAsync()
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId != null)
-        {
-            Categories = await _categoryService.GetCategoriesForUserAsync(userId);
-        }
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return;
+        var userId = int.Parse(userIdClaim);
+
+        Categories = await _categoryService.GetCategoriesForUserAsync(userId);
     }
 }
