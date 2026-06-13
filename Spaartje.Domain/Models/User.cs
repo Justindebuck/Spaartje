@@ -11,8 +11,8 @@ public class User
     public string Email { get; set; } = string.Empty;
 
     public string Password{ get; set; } = string.Empty;
-    public string Username{ get; set; } = string.Empty;
-    public string role { get; set; } = "user"; // Default role is "user", can be changed to "admin" for admin users.
+    public string UserName{ get; set; } = string.Empty;
+    public string Role { get; set; } = "user"; // Default role is "user", can be changed to "admin" for admin users.
 
      public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

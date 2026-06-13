@@ -7,7 +7,7 @@ public class Group
     public decimal? BudgetLimit { get; set; }
 
     // The user who created the group — they are the Manager
-    public string OwnerId { get; set; } = string.Empty;
+    public int OwnerId { get; set; } 
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
