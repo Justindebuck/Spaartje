@@ -30,6 +30,6 @@ public class CategorySummary
 
 public interface IDashboardService
 {
-    Task<DashboardSummary> GetSummaryForUserAsync(string userId);
-    Task<List<BudgetSummary>> GetBudgetSummaryAsync(string userId);
+    Task<DashboardSummary> GetSummaryForUserAsync(int userId);
+    Task<List<BudgetSummary>> GetBudgetSummaryAsync(int userId);
 }

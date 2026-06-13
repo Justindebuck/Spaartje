@@ -11,9 +11,11 @@ namespace Spaartje.BLL.Services;
 // The Web layer code doesn't change at all.
 public interface IUserService
 {
-    // Get all users. Returns Domain User objects (not IdentityUser).
     Task<List<User>> GetAllUsersAsync();
-
-    // Get a single user by email. Returns null if not found.
     Task<User?> GetUserByEmailAsync(string email);
+
+    Task<User?> GetUserByIdAsync(int id);
+
+    Task<(bool Success, string Error)> RegisterAsync(string email, string userName, string password);
+    Task<User?> ValidateLoginAsync(string email, string password);
 }
