@@ -30,6 +30,6 @@ public class RegisterModel : PageModel
             return Page();
         }
 
-        return RedirectToPage("/Login");
+        return RedirectToPage("/Dashboard");
     }
 }
