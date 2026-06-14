@@ -20,6 +20,7 @@ public class UserRepository : IUserRepository
     public async Task<List<User>> GetAllUsersAsync()
     {
      var connection = _context.Database.GetDbConnection();
+      if (connection.State != System.Data.ConnectionState.Open)
         await connection.OpenAsync();
 
         using var command = connection.CreateCommand();
@@ -48,6 +49,7 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetUserByEmailAsync(string email)
     {
       var connection = _context.Database.GetDbConnection();
+       if (connection.State != System.Data.ConnectionState.Open)
         await connection.OpenAsync();
 
         using var command = connection.CreateCommand();
@@ -79,6 +81,7 @@ public class UserRepository : IUserRepository
     public async Task<User?> GetUserByIdAsync(int id)
     {
      var connection = _context.Database.GetDbConnection();
+       if (connection.State != System.Data.ConnectionState.Open)
         await connection.OpenAsync();
 
         using var command = connection.CreateCommand();
@@ -110,6 +113,7 @@ public class UserRepository : IUserRepository
     public async Task AddUserAsync(User user)
     {
      var connection = _context.Database.GetDbConnection();
+       if (connection.State != System.Data.ConnectionState.Open)
         await connection.OpenAsync();
 
         using var command = connection.CreateCommand();
@@ -137,6 +141,7 @@ public class UserRepository : IUserRepository
     public async Task<bool> EmailExistsAsync(string email)
     {
      var connection = _context.Database.GetDbConnection();
+       if (connection.State != System.Data.ConnectionState.Open)
         await connection.OpenAsync();
 
         using var command = connection.CreateCommand();

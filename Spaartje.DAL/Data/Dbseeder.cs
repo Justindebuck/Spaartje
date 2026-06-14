@@ -1,5 +1,6 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
+using Spaartje.DAL.Repositories;
+using Spaartje.Domain.Models;
 
 namespace Spaartje.DAL.Data;
 
@@ -9,53 +10,33 @@ public static class DbSeeder
 
     private const string AdminEmail = "admin@spaartje.nl";
     private const string AdminPassword = "Admin123!";
+    private const string AdminUserName = "Admin";
 
     public static async Task SeedAsync(IServiceProvider serviceProvider)
     {
-        var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var userManager = serviceProvider.GetRequiredService<UserManager<IdentityUser>>();
+        var userRepository = serviceProvider.GetRequiredService<IUserRepository>();
 
-        var roleExists = await roleManager.RoleExistsAsync(AdminRole);
+        // Check if the admin user already exists
+        var existingAdmin = await userRepository.GetUserByEmailAsync(AdminEmail);
 
-        if (!roleExists)
+        if (existingAdmin == null)
         {
-            var role = new IdentityRole(AdminRole);
-
-            await roleManager.CreateAsync(role);
-        }
-
-        var adminUser = await userManager.FindByEmailAsync(AdminEmail);
-
-        if (adminUser == null)
-        {
-            var newAdmin = new IdentityUser
+            var adminUser = new User
             {
-                UserName = AdminEmail,
-                Email = AdminEmail,
-                EmailConfirmed = true
+                Email     = AdminEmail,
+                UserName  = AdminUserName,
+                Password  = AdminPassword, // plain text for now
+                Role      = AdminRole,
+                CreatedAt = DateTime.UtcNow
             };
 
-            var createResult = await userManager.CreateAsync(newAdmin, AdminPassword);
+            await userRepository.AddUserAsync(adminUser);
 
-            if (createResult.Succeeded)
-            {
-                await userManager.AddToRoleAsync(newAdmin, AdminRole);
-            }
-            else
-            {
-                foreach (var error in createResult.Errors)
-                {
-                    Console.WriteLine($"[Seeder Error] {error.Description}");
-                }
-            }
+            Console.WriteLine("[Seeder] Admin user created.");
         }
         else
         {
-            var isInRole = await userManager.IsInRoleAsync(adminUser, AdminRole);
-            if (!isInRole)
-            {
-                await userManager.AddToRoleAsync(adminUser, AdminRole);
-            }
+            Console.WriteLine("[Seeder] Admin user already exists, skipping.");
         }
     }
 }
