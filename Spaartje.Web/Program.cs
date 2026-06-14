@@ -1,5 +1,7 @@
-using Microsoft.AspNetCore.Identity;
+
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Spaartje.BLL.Services;
 using Spaartje.DAL.Data;
 using Spaartje.DAL.Repositories;
@@ -14,29 +16,19 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// Add Identity services
-builder.Services.AddDefaultIdentity<IdentityUser>(options => {
-options.Password.RequireDigit = false;
-options.Password.RequireLowercase = false;  
-options.Password.RequireNonAlphanumeric = false;
-options.Password.RequireUppercase = false;
-options.Password.RequiredLength = 6;
-options.SignIn.RequireConfirmedAccount = false;
- })
- .AddRoles<IdentityRole>()
-.AddEntityFrameworkStores<ApplicationDbContext>()
-// Add default token providers for password reset, email confirmation, etc.
-.AddDefaultTokenProviders();
+
 
 
 // Configure cookie settings for authentication
- builder.Services.ConfigureApplicationCookie(options => {
+ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     // Set the paths for login, logout, and access denied actions
-     options.LoginPath = "/Login";
-     options.LogoutPath = "/Logout";
-     options.AccessDeniedPath = "/AccessDenied";
-     // Set cookie expiration to 7 days
-     options.ExpireTimeSpan = TimeSpan.FromDays(7);
+     .AddCookie(options =>
+     {
+         options.LoginPath = "/Login";
+         options.LogoutPath = "/Logout";
+         options.AccessDeniedPath = "/AccessDenied";
+         // Set cookie expiration to 7 days
+         options.ExpireTimeSpan = TimeSpan.FromDays(7);
      // Enable sliding expiration to refresh the cookie on each request
      options.SlidingExpiration = true;
  });

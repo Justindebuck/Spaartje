@@ -7,42 +7,35 @@
 
 <h2>Create Account</h2>
 
-@if (Model.ErrorMessages.Any())
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
 {
     <div class="alert alert-danger">
-        <ul style="margin: 0; padding-left: 20px;">
-            @foreach (var error in Model.ErrorMessages)
-            {
-                <li>@error</li>
-            }
-        </ul>
+        @Model.ErrorMessage
     </div>
 }
 
 <form method="post">
-
     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
     <div class="form-group">
-        <label asp-for="Input.Email">Email</label>
-        <input asp-for="Input.Email" type="email" placeholder="you@example.com" />
-        <span asp-validation-for="Input.Email" class="text-danger"></span>
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" type="email" placeholder="you@example.com" />
+        <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Input.Password">Password</label>
-        <input asp-for="Input.Password" type="password" placeholder="At least 6 characters" />
-        <span asp-validation-for="Input.Password" class="text-danger"></span>
+        <label asp-for="UserName">Username</label>
+        <input asp-for="UserName" placeholder="Your username" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
     </div>
 
     <div class="form-group">
-        <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-        <input asp-for="Input.ConfirmPassword" type="password" placeholder="Repeat your password" />
-        <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+        <label asp-for="Password">Password</label>
+        <input asp-for="Password" type="password" placeholder="Your password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
     </div>
 
     <button type="submit">Create Account</button>
-
 </form>
 
 <p style="margin-top: 16px;">

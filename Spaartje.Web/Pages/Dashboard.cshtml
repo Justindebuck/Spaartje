@@ -15,27 +15,27 @@
         <div style="flex:1; min-width:180px; background:#d4edda; border:1px solid #c3e6cb; border-radius:8px; padding:20px; text-align:center;">
             <div style="font-size:14px; color:#155724; margin-bottom:6px;">Total Income</div>
             <div style="font-size:28px; font-weight:bold; color:#155724;">
-                €@Model.Summary.TotalIncome.ToString("F2")
+                €@Model.Summary?.TotalIncome.ToString("F2")
             </div>
         </div>
 
         <div style="flex:1; min-width:180px; background:#f8d7da; border:1px solid #f5c6cb; border-radius:8px; padding:20px; text-align:center;">
             <div style="font-size:14px; color:#721c24; margin-bottom:6px;">Total Expenses</div>
             <div style="font-size:28px; font-weight:bold; color:#721c24;">
-                €@Model.Summary.TotalExpenses.ToString("F2")
+                €@Model.Summary?.TotalExpenses.ToString("F2")
             </div>
         </div>
 
-        <div style="flex:1; min-width:180px; background:@(Model.Summary.Balance >= 0 ? "#d4edda" : "#f8d7da"); border:1px solid @(Model.Summary.Balance >= 0 ? "#c3e6cb" : "#f5c6cb"); border-radius:8px; padding:20px; text-align:center;">
-            <div style="font-size:14px; color:@(Model.Summary.Balance >= 0 ? "#155724" : "#721c24"); margin-bottom:6px;">Balance</div>
-            <div style="font-size:28px; font-weight:bold; color:@(Model.Summary.Balance >= 0 ? "#155724" : "#721c24");">
-                €@Model.Summary.Balance.ToString("F2")
+        <div style="flex:1; min-width:180px; background:@(Model.Summary?.Balance >= 0 ? "#d4edda" : "#f8d7da"); border:1px solid @(Model.Summary?.Balance >= 0 ? "#c3e6cb" : "#f5c6cb"); border-radius:8px; padding:20px; text-align:center;">
+            <div style="font-size:14px; color:@(Model.Summary?.Balance >= 0 ? "#155724" : "#721c24"); margin-bottom:6px;">Balance</div>
+            <div style="font-size:28px; font-weight:bold; color:@(Model.Summary?.Balance >= 0 ? "#155724" : "#721c24");">
+                €@Model.Summary?.Balance.ToString("F2")
             </div>
         </div>
 
     </div>
 
-    @if (Model.Summary.CategoryBreakdown.Any())
+    @if (Model.Summary?.CategoryBreakdown.Any() == true)
     {
         <!-- Charts Section -->
         <div style="display:flex; gap:24px; margin-bottom:32px; flex-wrap:wrap;">
@@ -54,7 +54,7 @@
 
         </div>
 
-        @if (Model.BudgetSummaries.Any())
+        @if (Model.BudgetSummaries?.Any() == true)
 {
     <div style="background:#f8f9fa; border:1px solid #ddd; border-radius:8px; padding:20px; margin-bottom:32px;">
         <h3 style="margin-top:0; font-size:16px; color:#2c3e50;">

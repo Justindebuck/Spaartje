@@ -22,29 +22,17 @@
         <thead>
             <tr style="background-color: #2c3e50; color: white;">
                 <th style="padding: 10px; text-align: left;">Email</th>
-                <th style="padding: 10px; text-align: left;">Roles</th>
-                <th style="padding: 10px; text-align: left;">Email Confirmed</th>
+                <th style="padding: 10px; text-align: left;">Username</th>
+                <th style="padding: 10px; text-align: left;">Role</th>
             </tr>
         </thead>
         <tbody>
-        
             @foreach (var user in Model.Users)
             {
                 <tr style="border-bottom: 1px solid #ddd;">
                     <td style="padding: 10px;">@user.Email</td>
-                    <td style="padding: 10px;">
-                        @if (user.Roles.Any())
-                        {
-                            @string.Join(", ", user.Roles)
-                        }
-                        else
-                        {
-                            <span style="color: #999;">No roles</span>
-                        }
-                    </td>
-                    <td style="padding: 10px;">
-                        @(user.EmailConfirmed ? "Yes" : "No")
-                    </td>
+                    <td style="padding: 10px;">@user.UserName</td>
+                    <td style="padding: 10px;">@user.Role</td>
                 </tr>
             }
         </tbody>
@@ -55,5 +43,6 @@ else
     <p>No users found.</p>
 }
 
-
-<p style="margin-top: 20px;"><a asp-page="/Admin/Index">← Back to Admin Panel</a></p>
+<p style="margin-top: 20px;">
+    <a asp-page="/Admin/Index">← Back to Admin Panel</a>
+</p>

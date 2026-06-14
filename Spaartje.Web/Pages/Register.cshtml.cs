@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Spaartje.BLL.Services;
@@ -9,7 +9,7 @@ public class RegisterModel : PageModel
 {
     private readonly IUserService _userService;
 
-    private  RegisterModel(IUserService userService)
+    public RegisterModel(IUserService userService)
     {
         _userService = userService;
     }
@@ -30,6 +30,6 @@ public class RegisterModel : PageModel
             return Page();
         }
 
-        return RedirectToPage("/Account/Login");
+        return RedirectToPage("/Login");
     }
 }

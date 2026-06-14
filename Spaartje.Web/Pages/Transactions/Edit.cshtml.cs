@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 using Spaartje.BLL.Services;
 using Spaartje.Domain.Models;
+using System.Security.Claims;
 
 namespace Spaartje.Web.Pages.Transactions;
 
@@ -14,16 +14,14 @@ public class EditModel : PageModel
 {
     private readonly ITransactionService _transactionService;
     private readonly ICategoryService _categoryService;
-    private readonly UserManager<IdentityUser> _userManager;
-
+  
     public EditModel(
         ITransactionService transactionService,
-        ICategoryService categoryService,
-        UserManager<IdentityUser> userManager)
+        ICategoryService categoryService)
     {
         _transactionService = transactionService;
         _categoryService = categoryService;
-        _userManager = userManager;
+       
     }
 
     // The transaction Id comes from the URL: /Transactions/Edit?id=1
@@ -69,8 +67,9 @@ public class EditModel : PageModel
     // It loads the existing transaction and pre-fills the form
     public async Task<IActionResult> OnGetAsync()
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return RedirectToPage("/Login");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Login");
+        var userId = int.Parse(userIdClaim);
 
         var transaction = await _transactionService.GetByIdAsync(Id);
 
@@ -93,8 +92,9 @@ public class EditModel : PageModel
     // OnPostAsync runs when the user submits the edit form
     public async Task<IActionResult> OnPostAsync()
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return RedirectToPage("/Login");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Login");
+        var userId = int.Parse(userIdClaim);
 
         await LoadCategoryOptionsAsync(userId);
 
@@ -123,7 +123,7 @@ public class EditModel : PageModel
     }
 
     // Private helper — loads the category dropdown
-    private async Task LoadCategoryOptionsAsync(string userId)
+    private async Task LoadCategoryOptionsAsync(int userId)
     {
         var categories = await _categoryService.GetCategoriesForUserAsync(userId);
 

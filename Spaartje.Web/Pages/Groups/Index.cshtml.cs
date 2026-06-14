@@ -20,7 +20,7 @@ public class IndexModel : PageModel
     }
 
     public List<Group> Groups { get; set; } = new();
-    public string CurrentUserId { get; set; } = string.Empty;
+    public int CurrentUserId { get; set; } 
 
     public async Task OnGetAsync()
     {
@@ -28,7 +28,7 @@ public class IndexModel : PageModel
         if (userIdClaim == null) return;
 
         var userId = int.Parse(userIdClaim);
-        CurrentUserId = userIdClaim;
+        CurrentUserId = userId;
         Groups = await _groupService.GetGroupsForUserAsync(userId);
     }
 }

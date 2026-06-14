@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,16 +14,14 @@ public class IndexModel : PageModel
 {
     private readonly ITransactionService _transactionService;
     private readonly ICategoryService _categoryService;
-    private readonly UserManager<IdentityUser> _userManager;
-
+   
     public IndexModel(
         ITransactionService transactionService,
-        ICategoryService categoryService,
-        UserManager<IdentityUser> userManager)
+        ICategoryService categoryService)
     {
         _transactionService = transactionService;
         _categoryService = categoryService;
-        _userManager = userManager;
+       
     }
 
     public List<Transaction> Transactions { get; set; } = new();
@@ -77,10 +75,9 @@ public class IndexModel : PageModel
 
         if (!ModelState.IsValid)
             return Page();
-
-        var userId = _userManager.GetUserId(User);
-        if (userId == null)
-            return RedirectToPage("/Login");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Login");
+        var userId = int.Parse(userIdClaim);
 
         try
         {
@@ -108,9 +105,9 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostDeleteAsync(int transactionId)
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId == null)
-            return RedirectToPage("/Login");
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return RedirectToPage("/Login");
+        var userId = int.Parse(userIdClaim);
 
         await _transactionService.DeleteTransactionAsync(transactionId, userId);
         return RedirectToPage();
@@ -118,8 +115,9 @@ public class IndexModel : PageModel
 
     private async Task LoadDataAsync()
     {
-        var userId = _userManager.GetUserId(User);
-        if (userId == null) return;
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userIdClaim == null) return;
+        var userId = int.Parse(userIdClaim);
 
         Transactions = await _transactionService.GetTransactionsForUserAsync(userId);
         Categories = await _categoryService.GetCategoriesForUserAsync(userId);
