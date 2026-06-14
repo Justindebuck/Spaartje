@@ -13,7 +13,7 @@ public class TransactionRepository : ITransactionRepository
         _context = context;
     }
 
-    public async Task<List<Transaction>> GetTransactionsByUserIdAsync(string userId)
+    public async Task<List<Transaction>> GetTransactionsByUserIdAsync(int userId)
     {
         return await _context.Transactions
             // Include() tells EF Core to also load the related Category object.
@@ -26,8 +26,7 @@ public class TransactionRepository : ITransactionRepository
             .ToListAsync();
     }
 
-    public async Task<List<Transaction>> GetTransactionsByUserIdAndCategoryAsync(
-        string userId, int categoryId)
+    public async Task<List<Transaction>> GetTransactionsByUserIdAndCategoryAsync(int userId, int categoryId)
     {
         return await _context.Transactions
             .Include(t => t.Category)

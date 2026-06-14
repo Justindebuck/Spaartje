@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Identity;
+
 using Spaartje.DAL.Repositories;
 using Spaartje.Domain.Models;
 
@@ -7,20 +7,20 @@ namespace Spaartje.BLL.Services;
 public class GroupService : IGroupService
 {
     private readonly IGroupRepository _groupRepository;
-    private readonly UserManager<IdentityUser> _userManager;
+    private readonly IUserRepository _userRepository;
 
-    public GroupService(IGroupRepository groupRepository, UserManager<IdentityUser> userManager)
+    public GroupService(IGroupRepository groupRepository, IUserRepository userRepository)
     {
         _groupRepository = groupRepository;
-        _userManager = userManager;
+        _userRepository = userRepository;
     }
 
-    public async Task<List<Group>> GetGroupsForUserAsync(string userId)
+    public async Task<List<Group>> GetGroupsForUserAsync(int userId)
     {
         return await _groupRepository.GetGroupsForUserAsync(userId);
     }
 
-    public async Task<Group?> GetGroupByIdAsync(int groupId, string userId)
+    public async Task<Group?> GetGroupByIdAsync(int groupId, int userId)
     {
         var group = await _groupRepository.GetByIdAsync(groupId);
         if (group == null) return null;
@@ -34,7 +34,7 @@ public class GroupService : IGroupService
         return group;
     }
 
-    public async Task<Group> CreateGroupAsync(string name, decimal? budgetLimit, string ownerId)
+    public async Task<Group> CreateGroupAsync(string name, decimal? budgetLimit, int ownerId)
     {
         // Build the group object
         var group = new Group
@@ -60,7 +60,7 @@ public class GroupService : IGroupService
         return group;
     }
 
-    public async Task DeleteGroupAsync(int groupId, string userId)
+    public async Task DeleteGroupAsync(int groupId, int userId)
     {
         var group = await _groupRepository.GetByIdAsync(groupId);
 
@@ -73,7 +73,7 @@ public class GroupService : IGroupService
 
     // Returns an error message if something goes wrong
     // Returns null if it worked fine — same pattern as TransactionService
-    public async Task<string?> AddMemberByEmailAsync(int groupId, string email, string requestingUserId)
+    public async Task<string?> AddMemberByEmailAsync(int groupId, string email, int requestingUserId)
     {
         var group = await _groupRepository.GetByIdAsync(groupId);
 
@@ -82,7 +82,7 @@ public class GroupService : IGroupService
             return "You do not have permission to invite members.";
 
         // Search for the user by email using Identity
-        var user = await _userManager.FindByEmailAsync(email);
+        var user = await _userRepository.GetUserByEmailAsync(email);
         if (user == null)
             return "No account found with that email address.";
 
@@ -102,7 +102,7 @@ public class GroupService : IGroupService
         return null;
     }
 
-    public async Task RemoveMemberAsync(int groupId, string memberUserId, string requestingUserId)
+    public async Task RemoveMemberAsync(int groupId, int memberUserId, int requestingUserId)
     {
         var group = await _groupRepository.GetByIdAsync(groupId);
 
@@ -122,7 +122,7 @@ public class GroupService : IGroupService
 
     // Returns an error message if something goes wrong
     // Returns null if it worked fine
-    public async Task<string?> AddTransactionAsync(int groupId, decimal amount, string description, DateTime date, TransactionType type, string userId)
+    public async Task<string?> AddTransactionAsync(int groupId, decimal amount, string description, DateTime date, TransactionType type, int userId)
     {
         var group = await _groupRepository.GetByIdAsync(groupId);
         if (group == null) return "Group not found.";
@@ -151,7 +151,7 @@ public class GroupService : IGroupService
         return null;
     }
 
-    public async Task<List<GroupTransaction>> GetTransactionsAsync(int groupId, string userId)
+    public async Task<List<GroupTransaction>> GetTransactionsAsync(int groupId, int userId)
     {
         var group = await _groupRepository.GetByIdAsync(groupId);
         if (group == null) return new List<GroupTransaction>();

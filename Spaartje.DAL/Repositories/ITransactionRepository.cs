@@ -5,10 +5,10 @@ namespace Spaartje.DAL.Repositories;
 public interface ITransactionRepository
 {
     // Get all transactions for a user, newest first.
-    Task<List<Transaction>> GetTransactionsByUserIdAsync(string userId);
+    Task<List<Transaction>> GetTransactionsByUserIdAsync(int userId);
 
     // Get all transactions for a user in a specific category.
-    Task<List<Transaction>> GetTransactionsByUserIdAndCategoryAsync(string userId, int categoryId);
+    Task<List<Transaction>> GetTransactionsByUserIdAndCategoryAsync(int userId, int categoryId);
 
     // Get a single transaction by ID.
     Task<Transaction?> GetByIdAsync(int id);

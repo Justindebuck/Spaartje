@@ -13,7 +13,7 @@ public class GroupRepository : IGroupRepository
         _context = context;
     }
 
-    public async Task<List<Group>> GetGroupsForUserAsync(string userId)
+    public async Task<List<Group>> GetGroupsForUserAsync(int userId)
     {
         // Get groups where the user is the owner
         var ownedGroups = await _context.Groups
@@ -81,7 +81,7 @@ public class GroupRepository : IGroupRepository
         await _context.SaveChangesAsync();
     }
 
-    public async Task<GroupMember?> GetMemberAsync(int groupId, string userId)
+    public async Task<GroupMember?> GetMemberAsync(int groupId, int userId)
     {
         return await _context.GroupMembers
             .FirstOrDefaultAsync(m => m.GroupId == groupId && m.UserId == userId);

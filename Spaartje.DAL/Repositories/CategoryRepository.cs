@@ -15,7 +15,7 @@ public class CategoryRepository : ICategoryRepository
         _context = context;
     }
 
-    public async Task<List<Category>> GetCategoriesByUserIdAsync(string userId)
+    public async Task<List<Category>> GetCategoriesByUserIdAsync(int userId)
     {
         // _context.Categories queries the Categories table.
         // .Where() filters rows — like a SQL WHERE clause.

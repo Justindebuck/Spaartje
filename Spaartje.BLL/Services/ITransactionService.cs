@@ -4,12 +4,12 @@ namespace Spaartje.BLL.Services;
 
 public interface ITransactionService
 {
-    Task<List<Transaction>> GetTransactionsForUserAsync(string userId);
+    Task<List<Transaction>> GetTransactionsForUserAsync(int userId);
     Task<Transaction?> GetByIdAsync(int id);
     Task CreateTransactionAsync(decimal amount, string description,
-        DateTime date, TransactionType type, int categoryId, string userId);
-    Task DeleteTransactionAsync(int transactionId, string userId);
+        DateTime date, TransactionType type, int categoryId, int userId);
+    Task DeleteTransactionAsync(int transactionId, int userId);
 
     Task UpdateTransactionAsync(int transactionId, decimal amount, string description,
-        DateTime date, TransactionType type, int categoryId, string userId);
+        DateTime date, TransactionType type, int categoryId, int userId);
 }

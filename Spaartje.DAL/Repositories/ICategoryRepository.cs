@@ -7,7 +7,7 @@ public interface ICategoryRepository
 {
     // Get all categories that belong to a specific user.
     // userId is the Identity user's GUID string.
-    Task<List<Category>> GetCategoriesByUserIdAsync(string userId);
+    Task<List<Category>> GetCategoriesByUserIdAsync(int userId);
 
     // Get a single category by its ID.
     // Returns null if not found.

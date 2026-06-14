@@ -12,7 +12,7 @@ public class TransactionService : ITransactionService
         _transactionRepository = transactionRepository;
     }
 
-    public async Task<List<Transaction>> GetTransactionsForUserAsync(string userId)
+    public async Task<List<Transaction>> GetTransactionsForUserAsync(int userId)
     {
         return await _transactionRepository.GetTransactionsByUserIdAsync(userId);
     }
@@ -23,7 +23,7 @@ public class TransactionService : ITransactionService
     }
 
     public async Task CreateTransactionAsync(decimal amount, string description,
-        DateTime date, TransactionType type, int categoryId, string userId)
+        DateTime date, TransactionType type, int categoryId, int userId)
     {
         // Business rule: amount must be positive.
         // A negative expense doesn't make sense — the Type field already
@@ -44,7 +44,7 @@ public class TransactionService : ITransactionService
         await _transactionRepository.AddAsync(transaction);
     }
 
-    public async Task DeleteTransactionAsync(int transactionId, string userId)
+    public async Task DeleteTransactionAsync(int transactionId, int userId)
     {
         var transaction = await _transactionRepository.GetByIdAsync(transactionId);
 
@@ -56,7 +56,7 @@ public class TransactionService : ITransactionService
     }
 
     public async Task UpdateTransactionAsync(int transactionId, decimal amount, string description,
-        DateTime date, TransactionType type, int categoryId, string userId)
+        DateTime date, TransactionType type, int categoryId, int userId)
     {
         var transaction = await _transactionRepository.GetByIdAsync(transactionId);
 

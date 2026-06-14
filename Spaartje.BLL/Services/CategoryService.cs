@@ -12,7 +12,7 @@ public class CategoryService : ICategoryService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<List<Category>> GetCategoriesForUserAsync(string userId)
+    public async Task<List<Category>> GetCategoriesForUserAsync(int userId)
     {
         // Pass the userId to the repository so it filters by owner.
         return await _categoryRepository.GetCategoriesByUserIdAsync(userId);
@@ -23,7 +23,7 @@ public class CategoryService : ICategoryService
         return await _categoryRepository.GetByIdAsync(id);
     }
 
-    public async Task CreateCategoryAsync(string name, string description, string userId)
+    public async Task CreateCategoryAsync(string name, string description, int userId)
     {
         // Create the Category domain object here in the BLL.
         // The Web layer passes raw strings; the BLL assembles the object.
@@ -37,7 +37,7 @@ public class CategoryService : ICategoryService
         await _categoryRepository.AddAsync(category);
     }
 
-    public async Task DeleteCategoryAsync(int categoryId, string userId)
+    public async Task DeleteCategoryAsync(int categoryId, int userId)
     {
         var category = await _categoryRepository.GetByIdAsync(categoryId);
 
@@ -50,7 +50,7 @@ public class CategoryService : ICategoryService
         await _categoryRepository.DeleteAsync(category);
     }
 
-    public async Task UpdateCategoryAsync(int categoryId, string name, string description, string userId)
+    public async Task UpdateCategoryAsync(int categoryId, string name, string description, int userId)
     {
         var category = await _categoryRepository.GetByIdAsync(categoryId);
 
@@ -65,7 +65,7 @@ public class CategoryService : ICategoryService
 
         await _categoryRepository.UpdateAsync(category);
     }
-    public async Task SetBudgetLimitAsync(int categoryId, decimal? budgetLimit, string userId)
+    public async Task SetBudgetLimitAsync(int categoryId, decimal? budgetLimit, int userId)
 {
     var category = await _categoryRepository.GetByIdAsync(categoryId);
 

@@ -15,16 +15,14 @@ public class DashboardService : IDashboardService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<DashboardSummary> GetSummaryForUserAsync(string userId)
+    public async Task<DashboardSummary> GetSummaryForUserAsync(int userId)
     {
         // Load all transactions for this user (with their categories included).
         var transactions = await _transactionRepository.GetTransactionsByUserIdAsync(userId);
 
         var summary = new DashboardSummary();
 
-        // LINQ Sum() adds up all the Amount values where the condition is true.
-        // This is equivalent to: loop through all transactions, add up the amounts
-        // where Type == Income. LINQ makes this a single readable line.
+       
         summary.TotalIncome = transactions
             .Where(t => t.Type == TransactionType.Income)
             .Sum(t => t.Amount);
@@ -54,7 +52,7 @@ public class DashboardService : IDashboardService
 
         return summary;
     }
-    public async Task<List<BudgetSummary>> GetBudgetSummaryAsync(string userId)
+    public async Task<List<BudgetSummary>> GetBudgetSummaryAsync(int userId)
 {
     // Get all categories for this user
     var categories = await _categoryRepository.GetCategoriesByUserIdAsync(userId);
