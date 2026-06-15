@@ -17,56 +17,146 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<List<Category>> GetCategoriesByUserIdAsync(int userId)
     {
-        // _context.Categories queries the Categories table.
-        // .Where() filters rows — like a SQL WHERE clause.
-        // .OrderBy() sorts the results — like SQL ORDER BY.
-        // .ToListAsync() executes the query and returns the results.
-        // The generated SQL looks like:
-        // SELECT * FROM Categories WHERE UserId = @userId ORDER BY Name
-        return await _context.Categories
-            .Where(c => c.UserId == userId)
-            .OrderBy(c => c.Name)
-            .ToListAsync();
+       var connection = _context.Database.GetDbConnection();
+        if (connection.State != System.Data.ConnectionState.Open)
+            await connection.OpenAsync();
+
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT Id, Name, Description, UserId, BudgetLimit
+            FROM Categories
+            WHERE UserId = @userId
+            ORDER BY Name";
+
+        var param = command.CreateParameter();
+        param.ParameterName = "@userId";
+        param.Value = userId;
+        command.Parameters.Add(param);
+
+        using var reader = await command.ExecuteReaderAsync();
+
+        var categories = new List<Category>();
+        while (await reader.ReadAsync())
+        {
+            categories.Add(new Category
+            {
+                Id          = reader.GetInt32(0),
+                Name        = reader.GetString(1),
+                Description = reader.GetString(2),
+                UserId      = reader.GetInt32(3),
+                BudgetLimit = reader.IsDBNull(4) ? null : reader.GetDecimal(4)
+            });
+        }
+
+        return categories;
     }
 
     public async Task<Category?> GetByIdAsync(int id)
     {
-        // FindAsync looks up a row by its Primary Key (Id).
-        // It returns null if no row with that Id exists.
-        // Generated SQL: SELECT * FROM Categories WHERE Id = @id LIMIT 1
-        return await _context.Categories.FindAsync(id);
+         var connection = _context.Database.GetDbConnection();
+        if (connection.State != System.Data.ConnectionState.Open)
+            await connection.OpenAsync();
+
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+            SELECT Id, Name, Description, UserId, BudgetLimit
+            FROM Categories
+            WHERE Id = @id";
+
+        var param = command.CreateParameter();
+        param.ParameterName = "@id";
+        param.Value = id;
+        command.Parameters.Add(param);
+
+        using var reader = await command.ExecuteReaderAsync();
+
+        if (await reader.ReadAsync())
+        {
+            return new Category
+            {
+                Id          = reader.GetInt32(0),
+                Name        = reader.GetString(1),
+                Description = reader.GetString(2),
+                UserId      = reader.GetInt32(3),
+                BudgetLimit = reader.IsDBNull(4) ? null : reader.GetDecimal(4)
+            };
+        }
+
+        return null;
     }
 
     public async Task AddAsync(Category category)
     {
-        // AddAsync stages the new category for insertion.
-        // Nothing is written to the database yet.
-        await _context.Categories.AddAsync(category);
+        var connection = _context.Database.GetDbConnection();
+        if (connection.State != System.Data.ConnectionState.Open)
+            await connection.OpenAsync();
 
-        // SaveChangesAsync executes the staged INSERT statement.
-        // Generated SQL: INSERT INTO Categories (Name, Description, UserId)
-        //                VALUES (@name, @description, @userId)
-        await _context.SaveChangesAsync();
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+            INSERT INTO Categories (Name, Description, UserId, BudgetLimit)
+            VALUES (@name, @description, @userId, @budgetLimit)";
+
+        void AddParam(string name, object? value)
+        {
+            var p = command.CreateParameter();
+            p.ParameterName = name;
+            p.Value = value ?? DBNull.Value;
+            command.Parameters.Add(p);
+        }
+
+        AddParam("@name",        category.Name);
+        AddParam("@description", category.Description);
+        AddParam("@userId",      category.UserId);
+        AddParam("@budgetLimit", category.BudgetLimit);
+
+        await command.ExecuteNonQueryAsync();
     }
 
     public async Task DeleteAsync(Category category)
     {
-        // Remove stages the category for deletion.
-        _context.Categories.Remove(category);
+       var connection = _context.Database.GetDbConnection();
+        if (connection.State != System.Data.ConnectionState.Open)
+            await connection.OpenAsync();
 
-        // SaveChangesAsync executes the DELETE statement.
-        // Generated SQL: DELETE FROM Categories WHERE Id = @id
-        await _context.SaveChangesAsync();
+        using var command = connection.CreateCommand();
+        command.CommandText = "DELETE FROM Categories WHERE Id = @id";
+
+        var param = command.CreateParameter();
+        param.ParameterName = "@id";
+        param.Value = category.Id;
+        command.Parameters.Add(param);
+
+        await command.ExecuteNonQueryAsync();
     }
 
 
     public async Task UpdateAsync(Category category)
     {
-        // Update stages the category for update.
-        _context.Categories.Update(category);
+        var connection = _context.Database.GetDbConnection();
+        if (connection.State != System.Data.ConnectionState.Open)
+            await connection.OpenAsync();
 
-        // SaveChangesAsync executes the UPDATE statement.
-        // Generated SQL: UPDATE Categories SET Name = @name, Description = @description
-        await _context.SaveChangesAsync();
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
+            UPDATE Categories
+            SET Name        = @name,
+                Description = @description,
+                BudgetLimit = @budgetLimit
+            WHERE Id = @id";
+
+        void AddParam(string name, object? value)
+        {
+            var p = command.CreateParameter();
+            p.ParameterName = name;
+            p.Value = value ?? DBNull.Value;
+            command.Parameters.Add(p);
+        }
+
+        AddParam("@name",        category.Name);
+        AddParam("@description", category.Description);
+        AddParam("@budgetLimit", category.BudgetLimit);
+        AddParam("@id",          category.Id);
+
+        await command.ExecuteNonQueryAsync();
     }
 }
