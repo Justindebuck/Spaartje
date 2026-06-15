@@ -29,7 +29,7 @@ public class UserService : IUserService
         return await _userRepository.GetUserByEmailAsync(email);
     }
 
-     public async Task<User?> GetUserByIdAsync(int id)
+    public async Task<User?> GetUserByIdAsync(int id)
     {
         return await _userRepository.GetUserByIdAsync(id);
     }
@@ -37,9 +37,9 @@ public class UserService : IUserService
      public async Task<User?> ValidateLoginAsync(string email, string password)
     {
         var user = await _userRepository.GetUserByEmailAsync(email);
-        if (user == null) return null;
+        if (user == null || !BCrypt.Net.BCrypt.Verify(password, user.Password)) return null;
 
-        return user.Password == password ? user : null;
+        return user;
     }
 
      public async Task<(bool Success, string Error)> RegisterAsync(string email, string userName, string password)
@@ -51,7 +51,7 @@ public class UserService : IUserService
         {
             Email     = email,
             UserName  = userName,
-            Password  = password,
+            Password  = BCrypt.Net.BCrypt.HashPassword(password),
             Role      = "User",
             CreatedAt = DateTime.UtcNow
         };
