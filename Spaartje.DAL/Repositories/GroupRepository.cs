@@ -155,11 +155,36 @@ public class GroupRepository : IGroupRepository
 
     public async Task DeleteAsync(Group group)
     {
+// We need to manually delete related records due to FK constraints.
        var connection = _context.Database.GetDbConnection();
-        if (connection.State != System.Data.ConnectionState.Open)
-            await connection.OpenAsync();
+// Ensure the connection is open before executing commands
+        if (connection.State == System.Data.ConnectionState.Open)
+            await connection.CloseAsync();
+        await connection.OpenAsync();
 
-        using var command = connection.CreateCommand();
+// First delete related transactions and members to avoid FK constraint issues
+         using (var cmd = connection.CreateCommand())
+    {
+        cmd.CommandText = "DELETE FROM GroupTransactions WHERE GroupId = @id";
+        var param = cmd.CreateParameter();
+        param.ParameterName = "@id";
+        param.Value = group.Id;
+        cmd.Parameters.Add(param);
+        await cmd.ExecuteNonQueryAsync();
+    }
+// Then delete the group itself
+    using (var cmd = connection.CreateCommand())
+    {
+        cmd.CommandText = "DELETE FROM GroupMembers WHERE GroupId = @id";
+        var param = cmd.CreateParameter();
+        param.ParameterName = "@id";
+        param.Value = group.Id;
+        cmd.Parameters.Add(param);
+        await cmd.ExecuteNonQueryAsync();
+    }
+//  Finally, delete the group record
+        using (var command = connection.CreateCommand())
+        {
         command.CommandText = "DELETE FROM Groups WHERE Id = @id";
 
         var param = command.CreateParameter();
@@ -168,7 +193,7 @@ public class GroupRepository : IGroupRepository
         command.Parameters.Add(param);
 
         await command.ExecuteNonQueryAsync();
-    }
+    }}
 
     public async Task AddMemberAsync(GroupMember member)
     {

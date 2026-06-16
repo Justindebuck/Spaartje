@@ -65,7 +65,9 @@ public class GroupService : IGroupService
         var group = await _groupRepository.GetByIdAsync(groupId);
 
         // Only the owner can delete the group
-        if (group == null || group.OwnerId != userId)
+        if (group == null) return;
+        
+        if (group.OwnerId != userId)
             return;
 
         await _groupRepository.DeleteAsync(group);

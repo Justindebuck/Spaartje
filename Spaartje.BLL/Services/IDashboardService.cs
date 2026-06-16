@@ -10,9 +10,7 @@ public class DashboardSummary
     public decimal TotalIncome { get; set; }
     public decimal TotalExpenses { get; set; }
 
-    // Balance is a calculated property — not stored in the database.
-    // It is always TotalIncome minus TotalExpenses.
-    // The 'get' only accessor means it cannot be set directly — it is always calculated.
+    // The overall balance (income - expenses).
     public decimal Balance => TotalIncome - TotalExpenses;
 
     // A breakdown of expenses per category.
