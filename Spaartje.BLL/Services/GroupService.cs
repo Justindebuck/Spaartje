@@ -61,16 +61,25 @@ public class GroupService : IGroupService
     }
 
     public async Task DeleteGroupAsync(int groupId, int userId)
+
     {
+         Console.WriteLine($"[DELETE] Called with groupId={groupId}, userId={userId}");
+
         var group = await _groupRepository.GetByIdAsync(groupId);
+
+         Console.WriteLine($"[DELETE] Group found: {group != null}, OwnerId: {group?.OwnerId}");
 
         // Only the owner can delete the group
         if (group == null) return;
         
         if (group.OwnerId != userId)
+        {
+        Console.WriteLine($"[DELETE] Blocked — user {userId} is not owner {group.OwnerId}");
             return;
-
+        }
+        Console.WriteLine($"[DELETE] Calling DeleteAsync for group {group.Id}");
         await _groupRepository.DeleteAsync(group);
+         Console.WriteLine($"[DELETE] DeleteAsync finished");
     }
 
     // Returns an error message if something goes wrong
