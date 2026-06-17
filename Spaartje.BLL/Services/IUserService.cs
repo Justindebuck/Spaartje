@@ -18,4 +18,6 @@ public interface IUserService
 
     Task<(bool Success, string Error)> RegisterAsync(string email, string userName, string password);
     Task<User?> ValidateLoginAsync(string email, string password);
+
+    Task<string?> DeleteUserAsync(int userIdToDelete, int requestingUserId);
 }

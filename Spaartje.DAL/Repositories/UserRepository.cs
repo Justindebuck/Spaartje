@@ -156,4 +156,41 @@ public class UserRepository : IUserRepository
         return Convert.ToInt32(count) > 0;
     }
 
+public async Task DeleteUserAsync(int userId)
+{
+    var connection = _context.Database.GetDbConnection();
+    if (connection.State != System.Data.ConnectionState.Open)
+        await connection.OpenAsync();
+
+    // Delete related data first
+    using (var cmd = connection.CreateCommand())
+    {
+        cmd.CommandText = "DELETE FROM Transactions WHERE UserId = @id";
+        var p = cmd.CreateParameter();
+        p.ParameterName = "@id";
+        p.Value = userId;
+        cmd.Parameters.Add(p);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    using (var cmd = connection.CreateCommand())
+    {
+        cmd.CommandText = "DELETE FROM Categories WHERE UserId = @id";
+        var p = cmd.CreateParameter();
+        p.ParameterName = "@id";
+        p.Value = userId;
+        cmd.Parameters.Add(p);
+        await cmd.ExecuteNonQueryAsync();
+    }
+
+    using (var cmd = connection.CreateCommand())
+    {
+        cmd.CommandText = "DELETE FROM Users WHERE Id = @id";
+        var p = cmd.CreateParameter();
+        p.ParameterName = "@id";
+        p.Value = userId;
+        cmd.Parameters.Add(p);
+        await cmd.ExecuteNonQueryAsync();
+    }
+}
 }

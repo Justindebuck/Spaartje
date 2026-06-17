@@ -59,4 +59,20 @@ public class UserService : IUserService
         await _userRepository.AddUserAsync(user);
         return (true, string.Empty);
     }
+    public async Task<string?> DeleteUserAsync(int userIdToDelete, int requestingUserId)
+{
+    // Prevent admin from deleting themselves
+    if (userIdToDelete == requestingUserId)
+        return "You cannot delete your own account.";
+
+    var user = await _userRepository.GetUserByIdAsync(userIdToDelete);
+    if (user == null) return "User not found.";
+
+    // Prevent deleting other admins
+    if (user.Role == "Admin")
+        return "You cannot delete another admin account.";
+
+    await _userRepository.DeleteUserAsync(userIdToDelete);
+    return null;
+}
 }
