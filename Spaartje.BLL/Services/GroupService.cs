@@ -175,4 +175,20 @@ public class GroupService : IGroupService
 
         return await _groupRepository.GetTransactionsByGroupIdAsync(groupId);
     }
+
+    public async Task<string?> UpdateGroupAsync(int groupId, string name, decimal? budgetLimit, int userId)
+{
+    var group = await _groupRepository.GetByIdAsync(groupId);
+    if (group == null) return "Group not found.";
+
+    // Only the manager can edit
+    if (group.OwnerId != userId) return "Only the group manager can edit this group.";
+
+    group.Name = name;
+    // 0 or empty both mean no budget limit
+    group.BudgetLimit = (budgetLimit.HasValue && budgetLimit.Value > 0) ? budgetLimit : null;
+
+    await _groupRepository.UpdateAsync(group);
+    return null;
+}
 }
