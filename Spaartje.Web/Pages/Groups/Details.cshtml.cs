@@ -82,20 +82,11 @@ public class DetailsModel : PageModel
         var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (userIdClaim == null) return RedirectToPage("/Account/Login");
         var userId = int.Parse(userIdClaim);
-        // Only validate the transaction fields
-        if (!ModelState["TransactionInput.Description"]!.Errors.Any() == false ||
-            !ModelState["TransactionInput.Amount"]!.Errors.Any() == false ||
-            !ModelState["TransactionInput.Date"]!.Errors.Any() == false)
-        {
-            await LoadPageAsync();
-            return Page();
-        }
 
         if (TransactionInput.Amount == null)
         {
             ErrorMessage = "Amount is required.";
-            await LoadPageAsync();
-            return Page();
+            return await LoadPageAsync();
         }
 
         var error = await _groupService.AddTransactionAsync(
@@ -117,8 +108,8 @@ public class DetailsModel : PageModel
             ModelState.Clear();
         }
 
-        await LoadPageAsync();
-        return Page();
+        return await LoadPageAsync();
+        
     }
 
     // Runs when the Invite Member form is submitted
@@ -144,8 +135,8 @@ public class DetailsModel : PageModel
             ModelState.Clear();
         }
 
-        await LoadPageAsync();
-        return Page();
+        return await LoadPageAsync();
+        
     }
 
     // Runs when the Remove Member button is clicked

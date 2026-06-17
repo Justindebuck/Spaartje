@@ -111,6 +111,7 @@
                 <h3 style="margin-top:0; font-size:16px;">Add Transaction</h3>
 
                 <form method="post" asp-page-handler="AddTransaction">
+                    <input type="hidden" name="Id" value="@Model.Group!.Id" />
 
                     <div class="form-group">
                         <label asp-for="TransactionInput.Description">Description</label>
@@ -217,6 +218,7 @@
                             <form method="post" asp-page-handler="RemoveMember"
                                   onsubmit="return confirm('Remove this member?');"
                                   style="display:inline;">
+                                <input type="hidden" name="Id" value="@Model.Group!.Id" />
                                 <input type="hidden" name="memberUserId" value="@member.UserId" />
                                 <button type="submit"
                                         style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:13px; padding:0;">
@@ -235,6 +237,7 @@
                     <h3 style="margin-top:0; font-size:16px;">Invite Member</h3>
 
                     <form method="post" asp-page-handler="InviteMember">
+                        <input type="hidden" name="Id" value="@Model.Group!.Id" />
 
                         <div class="form-group">
                             <label asp-for="InviteInput.Email">Email address</label>

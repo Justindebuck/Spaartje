@@ -1,6 +1,8 @@
+using BCrypt.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Spaartje.DAL.Repositories;
 using Spaartje.Domain.Models;
+
 
 namespace Spaartje.DAL.Data;
 
@@ -25,7 +27,7 @@ public static class DbSeeder
             {
                 Email     = AdminEmail,
                 UserName  = AdminUserName,
-                Password  = AdminPassword, // plain text for now
+                Password  = BCrypt.Net.BCrypt.HashPassword(AdminPassword), 
                 Role      = AdminRole,
                 CreatedAt = DateTime.UtcNow
             };
