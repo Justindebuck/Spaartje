@@ -163,6 +163,23 @@ public class DetailsModel : PageModel
 
         return RedirectToPage("/Groups/Index");
     }
+    public async Task<IActionResult> OnPostLeaveGroupAsync()
+{
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (userIdClaim == null) return RedirectToPage("/Account/Login");
+    var userId = int.Parse(userIdClaim);
+
+    var error = await _groupService.LeaveGroupAsync(Id, userId);
+
+    if (error != null)
+    {
+        ErrorMessage = error;
+        return await LoadPageAsync();
+    }
+
+    // After leaving, redirect back to the groups list
+    return RedirectToPage("/Groups/Index");
+}
 
     // Private helper — loads all the data the page needs
     private async Task<IActionResult> LoadPageAsync()
@@ -185,4 +202,5 @@ public class DetailsModel : PageModel
 
         return Page();
     }
+
 }

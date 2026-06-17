@@ -39,7 +39,18 @@
                 }
             </div>
         </div>
-
+        @if (!Model.IsManager)
+        {
+             <form method="post" asp-page-handler="LeaveGroup"
+                onsubmit="return confirm('Are you sure you want to leave this group?');"
+                style="margin-bottom:24px;">
+            <input type="hidden" name="Id" value="@Model.Group!.Id" />
+            <button type="submit"
+                style="background:#e67e22; color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer; font-size:14px;">
+                Leave Group
+            </button>
+        </form>
+        }
         @if (Model.IsManager)
         {
             <a asp-page="/Groups/Edit" asp-route-id="@Model.Group!.Id"

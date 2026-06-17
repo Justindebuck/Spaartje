@@ -13,4 +13,6 @@ public interface IGroupService
     Task<string?> AddTransactionAsync(int groupId, decimal amount, string description, DateTime date, TransactionType type, int userId);
     Task<List<GroupTransaction>> GetTransactionsAsync(int groupId, int userId);
     Task<string?> UpdateGroupAsync(int groupId, string name, decimal? budgetLimit, int userId);
+
+    Task<string?> LeaveGroupAsync(int groupId, int userId);
 }

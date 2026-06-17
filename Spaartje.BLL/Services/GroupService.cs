@@ -191,4 +191,19 @@ public class GroupService : IGroupService
     await _groupRepository.UpdateAsync(group);
     return null;
 }
+public async Task<string?> LeaveGroupAsync(int groupId, int userId)
+{
+    var group = await _groupRepository.GetByIdAsync(groupId);
+    if (group == null) return "Group not found.";
+
+    // The manager cannot leave — they must delete the group instead
+    if (group.OwnerId == userId)
+        return "You are the group manager.";
+
+    var member = await _groupRepository.GetMemberAsync(groupId, userId);
+    if (member == null) return "You are not a member of this group.";
+
+    await _groupRepository.RemoveMemberAsync(member);
+    return null;
+}
 }
