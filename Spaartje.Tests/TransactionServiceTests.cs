@@ -16,7 +16,7 @@ public class TransactionServiceTests
     public async Task GetTransactionsForUserAsync_ReturnsUsersTransactions()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
 
         var fakeTransactions = new List<Transaction>
         {
@@ -45,7 +45,7 @@ public class TransactionServiceTests
     public async Task CreateTransactionAsync_WithValidData_SavesTransaction()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
         Transaction? saved = null;
 
         var mockRepo = new Mock<ITransactionRepository>();
@@ -95,7 +95,7 @@ public class TransactionServiceTests
                 date: DateTime.Today,
                 type: TransactionType.Expense,
                 categoryId: 1,
-                userId: "user-123"));
+                userId: 1));
     }
 
     // ─────────────────────────────────────────────
@@ -117,7 +117,7 @@ public class TransactionServiceTests
                 date: DateTime.Today,
                 type: TransactionType.Expense,
                 categoryId: 1,
-                userId: "user-123"));
+                userId: 1));
     }
 
     // ─────────────────────────────────────────────
@@ -128,7 +128,7 @@ public class TransactionServiceTests
     public async Task DeleteTransactionAsync_WhenOwner_DeletesTransaction()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
         var transaction = new Transaction { Id = 1, Amount = 50m, UserId = userId };
 
         var mockRepo = new Mock<ITransactionRepository>();
@@ -152,8 +152,8 @@ public class TransactionServiceTests
     public async Task DeleteTransactionAsync_WhenNotOwner_DoesNotDelete()
     {
         // Arrange
-        var ownerId    = "user-123";
-        var attackerId = "user-999";
+        var ownerId    = 1;
+        var attackerId = 20;
 
         var transaction = new Transaction { Id = 1, Amount = 50m, UserId = ownerId };
 
@@ -195,6 +195,6 @@ public class TransactionServiceTests
                 date: DateTime.Today,
                 type: TransactionType.Expense,
                 categoryId: 1,
-                userId: "user-123"));
+                userId: 1));
     }
 }

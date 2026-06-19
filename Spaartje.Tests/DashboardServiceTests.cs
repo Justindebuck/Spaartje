@@ -10,7 +10,7 @@ public class DashboardServiceTests
 {
     // Helper: creates a transaction quickly without repeating all properties
     private static Transaction MakeTransaction(
-        decimal amount, TransactionType type, string categoryName = "Food", string userId = "user-123")
+        decimal amount, TransactionType type, string categoryName = "Food", int userId = 1)
     {
         return new Transaction
         {
@@ -29,7 +29,7 @@ public class DashboardServiceTests
     public async Task GetSummaryForUserAsync_CalculatesTotalIncomeCorrectly()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
 
         var transactions = new List<Transaction>
         {
@@ -38,11 +38,12 @@ public class DashboardServiceTests
             MakeTransaction(50m,   TransactionType.Expense) // should NOT count toward income
         };
 
-        var mockRepo = new Mock<ITransactionRepository>();
-        mockRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
+        var mockTransactionRepo = new Mock<ITransactionRepository>();
+        mockTransactionRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
                 .ReturnsAsync(transactions);
 
-        var service = new DashboardService(mockRepo.Object);
+        var mockCategoryRepo = new Mock<ICategoryRepository>();
+        var service = new DashboardService(mockTransactionRepo.Object, mockCategoryRepo.Object);
 
         // Act
         var summary = await service.GetSummaryForUserAsync(userId);
@@ -60,7 +61,7 @@ public class DashboardServiceTests
     public async Task GetSummaryForUserAsync_CalculatesTotalExpensesCorrectly()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
 
         var transactions = new List<Transaction>
         {
@@ -69,11 +70,12 @@ public class DashboardServiceTests
             MakeTransaction(1200m, TransactionType.Income) // should NOT count toward expenses
         };
 
-        var mockRepo = new Mock<ITransactionRepository>();
-        mockRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
+        var mockTransactionRepo = new Mock<ITransactionRepository>();
+        mockTransactionRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
                 .ReturnsAsync(transactions);
 
-        var service = new DashboardService(mockRepo.Object);
+        var mockCategoryRepo = new Mock<ICategoryRepository>();
+        var service = new DashboardService(mockTransactionRepo.Object, mockCategoryRepo.Object);
 
         // Act
         var summary = await service.GetSummaryForUserAsync(userId);
@@ -91,7 +93,7 @@ public class DashboardServiceTests
     public async Task GetSummaryForUserAsync_CalculatesBalanceCorrectly()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
 
         var transactions = new List<Transaction>
         {
@@ -99,11 +101,12 @@ public class DashboardServiceTests
             MakeTransaction(695m,  TransactionType.Expense)
         };
 
-        var mockRepo = new Mock<ITransactionRepository>();
-        mockRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
+        var mockTransactionRepo = new Mock<ITransactionRepository>();
+        mockTransactionRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
                 .ReturnsAsync(transactions);
 
-        var service = new DashboardService(mockRepo.Object);
+        var mockCategoryRepo = new Mock<ICategoryRepository>();
+        var service = new DashboardService(mockTransactionRepo.Object, mockCategoryRepo.Object);
 
         // Act
         var summary = await service.GetSummaryForUserAsync(userId);
@@ -121,7 +124,7 @@ public class DashboardServiceTests
     public async Task GetSummaryForUserAsync_WhenExpensesExceedIncome_BalanceIsNegative()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
 
         var transactions = new List<Transaction>
         {
@@ -129,11 +132,12 @@ public class DashboardServiceTests
             MakeTransaction(800m,  TransactionType.Expense)
         };
 
-        var mockRepo = new Mock<ITransactionRepository>();
-        mockRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
+        var mockTransactionRepo = new Mock<ITransactionRepository>();
+        mockTransactionRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
                 .ReturnsAsync(transactions);
 
-        var service = new DashboardService(mockRepo.Object);
+        var mockCategoryRepo = new Mock<ICategoryRepository>();
+        var service = new DashboardService(mockTransactionRepo.Object, mockCategoryRepo.Object);
 
         // Act
         var summary = await service.GetSummaryForUserAsync(userId);
@@ -154,13 +158,14 @@ public class DashboardServiceTests
     public async Task GetSummaryForUserAsync_WithNoTransactions_ReturnsZeroTotals()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
 
-        var mockRepo = new Mock<ITransactionRepository>();
-        mockRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
+        var mockTransactionRepo = new Mock<ITransactionRepository>();
+        mockTransactionRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
                 .ReturnsAsync(new List<Transaction>());
 
-        var service = new DashboardService(mockRepo.Object);
+        var mockCategoryRepo = new Mock<ICategoryRepository>();
+        var service = new DashboardService(mockTransactionRepo.Object, mockCategoryRepo.Object);
 
         // Act
         var summary = await service.GetSummaryForUserAsync(userId);
@@ -180,7 +185,7 @@ public class DashboardServiceTests
     public async Task GetSummaryForUserAsync_GroupsTransactionsByCategory()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
 
         var transactions = new List<Transaction>
         {
@@ -190,11 +195,12 @@ public class DashboardServiceTests
             MakeTransaction(1200m, TransactionType.Income, "Salary")  // income category
         };
 
-        var mockRepo = new Mock<ITransactionRepository>();
-        mockRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
-                .ReturnsAsync(transactions);
+        var mockTransactionRepo = new Mock<ITransactionRepository>();
+        mockTransactionRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
+                           .ReturnsAsync(transactions);
 
-        var service = new DashboardService(mockRepo.Object);
+        var mockCategoryRepo = new Mock<ICategoryRepository>();
+        var service = new DashboardService(mockTransactionRepo.Object, mockCategoryRepo.Object);
 
         // Act
         var summary = await service.GetSummaryForUserAsync(userId);
@@ -229,7 +235,7 @@ public class DashboardServiceTests
         decimal income, decimal expenses, decimal expectedBalance)
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
         var transactions = new List<Transaction>();
 
         if (income > 0)
@@ -237,11 +243,12 @@ public class DashboardServiceTests
         if (expenses > 0)
             transactions.Add(MakeTransaction(expenses, TransactionType.Expense));
 
-        var mockRepo = new Mock<ITransactionRepository>();
-        mockRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
-                .ReturnsAsync(transactions);
+        var mockTransactionRepo = new Mock<ITransactionRepository>();
+        mockTransactionRepo.Setup(r => r.GetTransactionsByUserIdAsync(userId))
+                            .ReturnsAsync(transactions);
 
-        var service = new DashboardService(mockRepo.Object);
+        var mockCategoryRepo = new Mock<ICategoryRepository>();
+        var service = new DashboardService(mockTransactionRepo.Object, mockCategoryRepo.Object);
 
         // Act
         var summary = await service.GetSummaryForUserAsync(userId);

@@ -11,129 +11,233 @@ namespace Spaartje.Tests;
 // The class name describes WHAT we are testing.
 // Convention: [ClassName]Tests
 public class UserServiceTests
+
 {
     // ─────────────────────────────────────────────
-    // TEST 1: GetAllUsersAsync returns all users
+    // TEST 1: RegisterAsync with a new email succeeds
     // ─────────────────────────────────────────────
-
-    // [Fact] marks this method as a test.
-    // xUnit will find and run any method with [Fact].
+    
     [Fact]
-    public async Task GetAllUsersAsync_ReturnsAllUsers()
-    {
-        // ── ARRANGE ──────────────────────────────
-        // Create a fake list of users to return from the mock.
-        var fakeUsers = new List<User>
-        {
-            new User { Id = "1", Email = "alice@test.com", Roles = new List<string>() },
-            new User { Id = "2", Email = "bob@test.com",   Roles = new List<string> { "Admin" } }
-        };
-
-        // Create a mock of IUserRepository.
-        // Mock<T> creates a fake object that implements the interface.
-        var mockRepo = new Mock<IUserRepository>();
-
-        // Setup: "when GetAllUsersAsync() is called, return fakeUsers"
-        // ReturnsAsync wraps the value in a completed Task automatically.
-        mockRepo.Setup(r => r.GetAllUsersAsync())
-                .ReturnsAsync(fakeUsers);
-
-        // Create the real UserService, passing the mock as its dependency.
-        // UserService doesn't know it's talking to a fake — it just calls the interface.
-        var service = new UserService(mockRepo.Object);
-
-        // ── ACT ──────────────────────────────────
-        // Call the method we are testing.
-        var result = await service.GetAllUsersAsync();
-
-        // ── ASSERT ───────────────────────────────
-        // Assert.Equal checks that two values are equal.
-        // "I expect the result to contain 2 users"
-        Assert.Equal(2, result.Count);
-
-        // Check specific values in the result.
-        Assert.Equal("alice@test.com", result[0].Email);
-        Assert.Equal("bob@test.com",   result[1].Email);
-    }
-
-    // ─────────────────────────────────────────────
-    // TEST 2: GetAllUsersAsync with empty database
-    // ─────────────────────────────────────────────
-
-    [Fact]
-    public async Task GetAllUsersAsync_WhenNoUsers_ReturnsEmptyList()
+    public async Task RegisterAsync_WithNewEmail_ReturnsSuccess()
     {
         // Arrange
         var mockRepo = new Mock<IUserRepository>();
 
-        // Return an empty list — simulates a fresh database with no users.
-        mockRepo.Setup(r => r.GetAllUsersAsync())
-                .ReturnsAsync(new List<User>());
+        // EmailExistsAsync returns false → the email is not taken yet
+        mockRepo.Setup(r => r.EmailExistsAsync("alice@test.com"))
+                .ReturnsAsync(false);
+
+        mockRepo.Setup(r => r.AddUserAsync(It.IsAny<User>()))
+                .Returns(Task.CompletedTask);
 
         var service = new UserService(mockRepo.Object);
 
         // Act
-        var result = await service.GetAllUsersAsync();
+        var (success, error) = await service.RegisterAsync("alice@test.com", "alice", "password123");
 
         // Assert
-        // Assert.Empty checks that the list has zero items.
-        Assert.Empty(result);
+        Assert.True(success);
+        Assert.Equal(string.Empty, error);
     }
 
     // ─────────────────────────────────────────────
-    // TEST 3: GetUserByEmailAsync returns correct user
+    // TEST 2: RegisterAsync with a duplicate email fails
     // ─────────────────────────────────────────────
 
     [Fact]
-    public async Task GetUserByEmailAsync_WithValidEmail_ReturnsUser()
+    public async Task RegisterAsync_WithDuplicateEmail_ReturnsFailure()
     {
         // Arrange
+        var mockRepo = new Mock<IUserRepository>();
+
+        // EmailExistsAsync returns true → email is already taken
+        mockRepo.Setup(r => r.EmailExistsAsync("alice@test.com"))
+                .ReturnsAsync(true);
+
+        var service = new UserService(mockRepo.Object);
+
+        // Act
+        var (success, error) = await service.RegisterAsync("alice@test.com", "alice", "password123");
+
+        // Assert
+        Assert.False(success);
+        Assert.NotEmpty(error); // some error message must be returned
+    }
+
+    // ─────────────────────────────────────────────
+    // TEST 3: Password is never stored as plain text
+    // This is the most important security test
+    // ─────────────────────────────────────────────
+
+    [Fact]
+    public async Task RegisterAsync_WithNewEmail_NeverStoresPlainTextPassword()
+    {
+        // Arrange
+        var mockRepo = new Mock<IUserRepository>();
+        User? savedUser = null;
+
+        mockRepo.Setup(r => r.EmailExistsAsync(It.IsAny<string>()))
+                .ReturnsAsync(false);
+
+        // Callback captures whatever User object gets passed to AddUserAsync
+        mockRepo.Setup(r => r.AddUserAsync(It.IsAny<User>()))
+                .Callback<User>(u => savedUser = u)
+                .Returns(Task.CompletedTask);
+
+        var service = new UserService(mockRepo.Object);
+
+        // Act
+        await service.RegisterAsync("alice@test.com", "alice", "myplainpassword");
+
+        // Assert
+        Assert.NotNull(savedUser);
+
+        // The stored password must NOT be the plain text original
+        Assert.NotEqual("myplainpassword", savedUser!.Password);
+
+        // BCrypt hashes always start with $2a$ or $2b$
+        Assert.StartsWith("$2", savedUser.Password);
+    }
+
+    // ─────────────────────────────────────────────
+    // TEST 4: New users always get the "User" role
+    // ─────────────────────────────────────────────
+
+    [Fact]
+    public async Task RegisterAsync_WithNewEmail_AssignsUserRole()
+    {
+        // Arrange
+        var mockRepo = new Mock<IUserRepository>();
+        User? savedUser = null;
+
+        mockRepo.Setup(r => r.EmailExistsAsync(It.IsAny<string>()))
+                .ReturnsAsync(false);
+
+        mockRepo.Setup(r => r.AddUserAsync(It.IsAny<User>()))
+                .Callback<User>(u => savedUser = u)
+                .Returns(Task.CompletedTask);
+
+        var service = new UserService(mockRepo.Object);
+
+        // Act
+        await service.RegisterAsync("alice@test.com", "alice", "password123");
+
+        // Assert
+        Assert.NotNull(savedUser);
+        // Role is now a single string — not a List<string> anymore
+        Assert.Equal("User", savedUser!.Role);
+    }
+
+    // ─────────────────────────────────────────────
+    // TEST 5: AddUserAsync is never called when email is taken
+    // ─────────────────────────────────────────────
+
+    [Fact]
+    public async Task RegisterAsync_WithDuplicateEmail_NeverCallsAddUserAsync()
+    {
+        // Arrange
+        var mockRepo = new Mock<IUserRepository>();
+
+        mockRepo.Setup(r => r.EmailExistsAsync(It.IsAny<string>()))
+                .ReturnsAsync(true);
+
+        var service = new UserService(mockRepo.Object);
+
+        // Act
+        await service.RegisterAsync("alice@test.com", "alice", "password123");
+
+        // Assert
+        // Times.Never means AddUserAsync must not have been called at all
+        mockRepo.Verify(r => r.AddUserAsync(It.IsAny<User>()), Times.Never);
+    }
+
+    // ─────────────────────────────────────────────
+    // TEST 6: Correct credentials return the user
+    // We use a real BCrypt hash so Verify() actually runs
+    // ─────────────────────────────────────────────
+
+    [Fact]
+    public async Task ValidateLoginAsync_WithCorrectCredentials_ReturnsUser()
+    {
+        // Arrange
+        // Create a real hash — BCrypt.Verify() needs an actual hash to compare against
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword("correctpassword");
+
         var fakeUser = new User
         {
-            Id = "1",
-            Email = "alice@test.com",
-            Roles = new List<string>()
+            Id       = 1,              // int — not a string anymore
+            Email    = "alice@test.com",
+            Password = hashedPassword,
+            UserName = "alice",
+            Role     = "User"          // single string — not a List<string> anymore
         };
 
         var mockRepo = new Mock<IUserRepository>();
-
-        // Setup: "when GetUserByEmailAsync is called WITH "alice@test.com", return fakeUser"
-        // It.Is<string>(...) means "match only when the argument satisfies this condition"
-        mockRepo.Setup(r => r.GetUserByEmailAsync(It.Is<string>(e => e == "alice@test.com")))
+        mockRepo.Setup(r => r.GetUserByEmailAsync("alice@test.com"))
                 .ReturnsAsync(fakeUser);
 
         var service = new UserService(mockRepo.Object);
 
         // Act
-        var result = await service.GetUserByEmailAsync("alice@test.com");
+        var result = await service.ValidateLoginAsync("alice@test.com", "correctpassword");
 
         // Assert
-        // Assert.NotNull checks the result is not null.
         Assert.NotNull(result);
-        Assert.Equal("alice@test.com", result.Email);
+        Assert.Equal(1, result!.Id);
     }
 
     // ─────────────────────────────────────────────
-    // TEST 4: GetUserByEmailAsync with unknown email
+    // TEST 7: Wrong password returns null
     // ─────────────────────────────────────────────
 
     [Fact]
-    public async Task GetUserByEmailAsync_WithUnknownEmail_ReturnsNull()
+    public async Task ValidateLoginAsync_WithWrongPassword_ReturnsNull()
+    {
+        // Arrange
+        var hashedPassword = BCrypt.Net.BCrypt.HashPassword("correctpassword");
+
+        var fakeUser = new User
+        {
+            Id       = 1,  // int — not a string anymore
+            Email    = "alice@test.com",
+            Password = hashedPassword,
+            Role     = "User"
+        };
+
+        var mockRepo = new Mock<IUserRepository>();
+        mockRepo.Setup(r => r.GetUserByEmailAsync("alice@test.com"))
+                .ReturnsAsync(fakeUser);
+
+        var service = new UserService(mockRepo.Object);
+
+        // Act
+        var result = await service.ValidateLoginAsync("alice@test.com", "wrongpassword");
+
+        // Assert
+        // BCrypt.Verify returns false for a wrong password → service returns null
+        Assert.Null(result);
+    }
+
+    // ─────────────────────────────────────────────
+    // TEST 8: Unknown email returns null
+    // ─────────────────────────────────────────────
+
+    [Fact]
+    public async Task ValidateLoginAsync_WithUnknownEmail_ReturnsNull()
     {
         // Arrange
         var mockRepo = new Mock<IUserRepository>();
 
-        // Return null — simulates "user not found in database"
-        mockRepo.Setup(r => r.GetUserByEmailAsync(It.IsAny<string>()))
+        // Simulate: no user found for this email
+        mockRepo.Setup(r => r.GetUserByEmailAsync("unknown@test.com"))
                 .ReturnsAsync((User?)null);
 
         var service = new UserService(mockRepo.Object);
 
         // Act
-        var result = await service.GetUserByEmailAsync("nobody@test.com");
+        var result = await service.ValidateLoginAsync("unknown@test.com", "anypassword");
 
         // Assert
-        // Assert.Null checks the result IS null.
         Assert.Null(result);
     }
 }

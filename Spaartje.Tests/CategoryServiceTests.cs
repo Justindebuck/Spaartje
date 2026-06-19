@@ -16,7 +16,7 @@ public class CategoryServiceTests
     public async Task GetCategoriesForUserAsync_ReturnsOnlyUsersCategories()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
 
         var fakeCategories = new List<Category>
         {
@@ -49,7 +49,7 @@ public class CategoryServiceTests
     public async Task CreateCategoryAsync_SavesCategoryWithCorrectUserId()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
 
         // We need to capture what was passed to AddAsync
         // so we can check it was built correctly.
@@ -85,7 +85,7 @@ public class CategoryServiceTests
     public async Task DeleteCategoryAsync_WhenOwner_DeletesCategory()
     {
         // Arrange
-        var userId = "user-123";
+        var userId = 1;
         var category = new Category { Id = 1, Name = "Food", UserId = userId };
 
         var mockRepo = new Mock<ICategoryRepository>();
@@ -117,8 +117,8 @@ public class CategoryServiceTests
     public async Task DeleteCategoryAsync_WhenNotOwner_DoesNotDelete()
     {
         // Arrange
-        var ownerId   = "user-123";
-        var attackerId = "user-999"; // A different user trying to delete
+        var ownerId   = 1;
+        var attackerId = 20; // A different user trying to delete
 
         var category = new Category { Id = 1, Name = "Food", UserId = ownerId };
 
@@ -155,7 +155,7 @@ public class CategoryServiceTests
         var service = new CategoryService(mockRepo.Object);
 
         // Act
-        await service.DeleteCategoryAsync(999, "user-123");
+        await service.DeleteCategoryAsync(999, 1);
 
         // Assert
         // Delete should never be called if the category doesn't exist.
